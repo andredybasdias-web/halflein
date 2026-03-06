@@ -4,59 +4,95 @@
 
 <title>Personagem</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 
 body{
-  margin:0;
-  font-family: Georgia, serif;
-  color:#2c1a0f;
+margin:0;
+font-family:Georgia, serif;
+background:#1a1a1a;
+color:#2c1a0f;
+}
 
-  background-image: url("https://i.imgur.com/A6uOdFA.png");
-  background-size: cover;
-  background-position: left center;
-  background-repeat: no-repeat;
-
-  height:100vh;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
+.hero{
+width:100%;
+height:45vh;
+background-image:url("https://i.imgur.com/xRvt1e9.png");
+background-size:cover;
+background-position:center top;
 }
 
 .card{
 
-  background:rgba(245,222,179,0.92);
+background:rgba(245,222,179,0.95);
 
-  padding:45px;
+margin:-40px 15px 20px 15px;
 
-  width:420px;
+padding:25px;
 
-  margin-right:5%;
+border-radius:14px;
 
-  border-radius:14px;
+border:4px solid #5a3b1a;
 
-  border:5px solid #5a3b1a;
-
-  box-shadow:0 0 40px rgba(0,0,0,0.7);
+box-shadow:0 0 30px rgba(0,0,0,0.7);
 
 }
 
 h1{
-  margin-top:0;
-  font-size:34px;
+margin-top:0;
+font-size:30px;
 }
 
 .stat{
-  margin:10px 0;
-  font-size:20px;
+margin:8px 0;
+font-size:18px;
 }
 
 .inventory{
-  margin-top:25px;
+margin-top:20px;
 }
 
-li{
-  margin:6px 0;
-  font-size:18px;
+.item{
+
+margin:8px 0;
+
+padding:8px;
+
+background:#e8d2a9;
+
+border-radius:6px;
+
+cursor:pointer;
+
+}
+
+.popup{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+background:#f3e2c2;
+
+border-top:4px solid #5a3b1a;
+
+padding:20px;
+
+display:none;
+
+}
+
+.close{
+margin-top:10px;
+padding:6px 12px;
+background:#5a3b1a;
+color:white;
+border:none;
 }
 
 </style>
@@ -65,63 +101,83 @@ li{
 
 <body>
 
+<div class="hero"></div>
+
 <div class="card">
 
-<h1 id="nome"></h1>
+<h1>Ghor Lightwood</h1>
 
-<div class="stat" id="classe"></div>
-<div class="stat" id="nivel"></div>
-<div class="stat" id="gp"></div>
+<div class="stat">Raça: Sátiro</div>
+<div class="stat">Classe: Bárbaro</div>
+<div class="stat">Nível: 9</div>
+<div class="stat">Ouro: 120 GP</div>
 
 <div class="inventory">
+
 <h3>Inventário</h3>
-<ul id="inventario"></ul>
+
+<div class="item" onclick="showItem('martelo')">Martelo Eldrack</div>
+
+<div class="item" onclick="showItem('escudo')">Escudo Kutaem</div>
+
+<div class="item" onclick="showItem('boneca')">Boneca de Eylianna</div>
+
+<div class="item" onclick="showItem('elmo')">Elmo de Natação</div>
+
 </div>
+
+</div>
+
+<div id="popup" class="popup">
+
+<h3 id="itemNome"></h3>
+
+<p id="itemDesc"></p>
+
+<button class="close" onclick="closePopup()">Fechar</button>
 
 </div>
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
-const user = params.get("user");
+const itens={
 
-const personagens = {
+martelo:{
+nome:"Martelo Eldrack",
+desc:"Um poderoso martelo de guerra marcado por runas antigas."
+},
 
-sirion:{
-nome:"Sírion",
-classe:"Bardo",
-nivel:5,
-gp:120,
-inventario:[
-"Alaúde",
-"Lira",
-"Anel de Zarabak"
-]
+escudo:{
+nome:"Escudo Kutaem",
+desc:"Escudo pesado que já protegeu guerreiros lendários."
+},
+
+boneca:{
+nome:"Boneca de Eylianna",
+desc:"Uma pequena boneca ligada a memórias importantes."
+},
+
+elmo:{
+nome:"Elmo de Natação",
+desc:"Permite ao usuário respirar debaixo d'água."
 }
-
-};
-
-const p = personagens[user];
-
-if(p){
-
-document.getElementById("nome").innerText = p.nome;
-document.getElementById("classe").innerText = "Classe: " + p.classe;
-document.getElementById("nivel").innerText = "Nível: " + p.nivel;
-document.getElementById("gp").innerText = "Ouro: " + p.gp + " GP";
-
-const lista = document.getElementById("inventario");
-
-p.inventario.forEach(item=>{
-const li = document.createElement("li");
-li.innerText = item;
-lista.appendChild(li);
-});
 
 }
 
-else{
-document.getElementById("nome").innerText="Personagem não encontrado";
+function showItem(id){
+
+document.getElementById("popup").style.display="block"
+
+document.getElementById("itemNome").innerText=itens[id].nome
+
+document.getElementById("itemDesc").innerText=itens[id].desc
+
+}
+
+function closePopup(){
+
+document.getElementById("popup").style.display="none"
+
 }
 
 </script>
