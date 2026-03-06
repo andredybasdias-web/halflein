@@ -33,59 +33,18 @@ border:3px solid #5a3b1a;
 }
 
 .item{
-padding:12px;
-margin:6px 0;
+padding:10px;
+margin:5px 0;
 background:#e8d2a9;
-border-radius:6px;
+border-radius:5px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-cursor:pointer;
 }
 
 button{
+margin-left:5px;
 cursor:pointer;
-margin-left:6px;
-}
-
-/* POPUP PERGAMINHO */
-
-.popup{
-position:fixed;
-top:0;
-left:0;
-right:0;
-bottom:0;
-background:rgba(0,0,0,0.6);
-display:none;
-justify-content:center;
-align-items:center;
-}
-
-.popupCard{
-background:#f3e2c2;
-padding:25px;
-border-radius:10px;
-border:4px solid #5a3b1a;
-width:300px;
-max-width:90%;
-}
-
-textarea{
-width:100%;
-height:120px;
-font-family:Georgia, serif;
-}
-
-input{
-width:100%;
-font-family:Georgia, serif;
-}
-
-.popupButtons{
-margin-top:10px;
-display:flex;
-justify-content:space-between;
 }
 
 </style>
@@ -104,29 +63,7 @@ justify-content:space-between;
 
 <br>
 
-<button onclick="novoItem()">➕ Novo item</button>
-
-</div>
-
-<!-- POPUP -->
-
-<div id="popup" class="popup">
-
-<div class="popupCard">
-
-<h3 id="popupNome"></h3>
-
-<textarea id="popupDescricao"></textarea>
-
-<div class="popupButtons">
-
-<button onclick="salvarDescricao()">🪶 Salvar</button>
-
-<button onclick="fecharPopup()">Fechar</button>
-
-</div>
-
-</div>
+<button onclick="addItem()">➕ Adicionar item</button>
 
 </div>
 
@@ -143,15 +80,21 @@ const params = new URLSearchParams(window.location.search)
 const token = params.get("token")
 
 let personagem_id = null
-let itemAtual = null
 
 async function getPersonagem(){
 
-const { data } = await client
+const { data, error } = await client
 .from("personagens")
 .select("*")
 .eq("token", token)
 .single()
+
+if(error || !data){
+
+alert("Personagem não encontrado")
+return
+
+}
 
 personagem_id = data.id
 
@@ -163,7 +106,7 @@ carregarItens()
 
 async function carregarItens(){
 
-const { data } = await client
+const { data, error } = await client
 .from("itens")
 .select("*")
 .eq("personagem_id", personagem_id)
@@ -180,7 +123,7 @@ el.className = "item"
 el.innerHTML = `
 <span>${item.nome}</span>
 <div>
-<button onclick="abrirItem(${item.id},'${item.nome}','${item.descricao || ""}')">📜</button>
+<button onclick="editarItem(${item.id}, '${item.nome}')">🪶</button>
 <button onclick="deletarItem(${item.id})">🗑</button>
 </div>
 `
@@ -191,40 +134,7 @@ div.appendChild(el)
 
 }
 
-function abrirItem(id,nome,descricao){
-
-itemAtual = id
-
-document.getElementById("popupNome").innerText = nome
-
-document.getElementById("popupDescricao").value = descricao || ""
-
-document.getElementById("popup").style.display = "flex"
-
-}
-
-function fecharPopup(){
-
-document.getElementById("popup").style.display = "none"
-
-}
-
-async function salvarDescricao(){
-
-const desc = document.getElementById("popupDescricao").value
-
-await client
-.from("itens")
-.update({descricao:desc})
-.eq("id",itemAtual)
-
-fecharPopup()
-
-carregarItens()
-
-}
-
-async function novoItem(){
+async function addItem(){
 
 const nome = prompt("Nome do item")
 
@@ -237,6 +147,21 @@ personagem_id: personagem_id,
 nome: nome,
 descricao: ""
 })
+
+carregarItens()
+
+}
+
+async function editarItem(id, nomeAtual){
+
+const novoNome = prompt("Editar item", nomeAtual)
+
+if(!novoNome) return
+
+await client
+.from("itens")
+.update({ nome: novoNome })
+.eq("id", id)
 
 carregarItens()
 
