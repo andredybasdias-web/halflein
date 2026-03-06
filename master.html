@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Georgia, serif;
+background-image:url("https://i.imgur.com/DG7KMZ9.png");
+background-size:cover;
+background-position:center;
+color:white;
+}
+
+.overlay{
+background:rgba(0,0,0,0.55);
+min-height:100vh;
+padding:40px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+max-width:900px;
+margin:auto;
+}
+
+.card{
+background:rgba(0,0,0,0.6);
+border:2px solid #d4af37;
+border-radius:10px;
+overflow:hidden;
+cursor:pointer;
+transition:0.2s;
+}
+
+.card:hover{
+transform:scale(1.03);
+}
+
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.info{
+padding:10px;
+text-align:center;
+}
+
+.name{
+font-size:20px;
+margin-bottom:5px;
+}
+
+.meta{
+font-size:14px;
+opacity:0.9;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay">
+
+<h1>Painel do Mestre</h1>
+
+<div class="grid" id="personagens"></div>
+
+</div>
+
+<script>
+
+const { createClient } = supabase
+
+const client = createClient(
+"https://fuocztjyfygvjemjwfkx.supabase.co",
+"sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
+)
+
+async function carregarPersonagens(){
+
+const { data } = await client
+.from("personagens")
+.select("*")
+
+const grid = document.getElementById("personagens")
+
+data.forEach(p => {
+
+const el = document.createElement("div")
+
+el.className = "card"
+
+el.onclick = () => {
+window.location.href = `char.html?token=${p.token}&master=true`
+}
+
+el.innerHTML = `
+<img src="${p.imagem}">
+<div class="info">
+<div class="name">${p.nome}</div>
+<div class="meta">${p.raca} • ${p.classe} • Nível ${p.nivel}</div>
+</div>
+`
+
+grid.appendChild(el)
+
+})
+
+}
+
+carregarPersonagens()
+
+</script>
+
+</body>
+
+</html>
