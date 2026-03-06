@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-<title>Personagem</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
@@ -12,87 +13,35 @@ body{
 margin:0;
 font-family:Georgia, serif;
 background:#1a1a1a;
-color:#2c1a0f;
 }
 
 .hero{
 width:100%;
-height:45vh;
+height:40vh;
 background-image:url("https://i.imgur.com/xRvt1e9.png");
 background-size:cover;
-background-position:center top;
+background-position:center;
 }
 
 .card{
-
-background:rgba(245,222,179,0.95);
-
-margin:-40px 15px 20px 15px;
-
-padding:25px;
-
-border-radius:14px;
-
-border:4px solid #5a3b1a;
-
-box-shadow:0 0 30px rgba(0,0,0,0.7);
-
-}
-
-h1{
-margin-top:0;
-font-size:30px;
-}
-
-.stat{
-margin:8px 0;
-font-size:18px;
-}
-
-.inventory{
-margin-top:20px;
+background:#f3e2c2;
+margin:-30px 15px 20px 15px;
+padding:20px;
+border-radius:10px;
+border:3px solid #5a3b1a;
 }
 
 .item{
-
-margin:8px 0;
-
-padding:8px;
-
+padding:10px;
+margin:5px 0;
 background:#e8d2a9;
-
-border-radius:6px;
-
-cursor:pointer;
-
+border-radius:5px;
+display:flex;
+justify-content:space-between;
 }
 
-.popup{
-
-position:fixed;
-
-bottom:0;
-
-left:0;
-
-right:0;
-
-background:#f3e2c2;
-
-border-top:4px solid #5a3b1a;
-
-padding:20px;
-
-display:none;
-
-}
-
-.close{
-margin-top:10px;
-padding:6px 12px;
-background:#5a3b1a;
-color:white;
-border:none;
+button{
+margin-left:5px;
 }
 
 </style>
@@ -105,82 +54,108 @@ border:none;
 
 <div class="card">
 
-<h1>Ghor Lightoof</h1>
+<h2>Ghor Lightwood</h2>
 
-<div class="stat">Raça: Sátiro</div>
-<div class="stat">Classe: Bárbaro</div>
-<div class="stat">Nível: 9</div>
-<div class="stat">Ouro: 120 GP</div>
+<div id="inventario"></div>
 
-<div class="inventory">
+<br>
 
-<h3>Inventário</h3>
-
-<div class="item" onclick="showItem('martelo')">Martelo Eldrack</div>
-
-<div class="item" onclick="showItem('escudo')">Escudo Kutaem</div>
-
-<div class="item" onclick="showItem('boneca')">Boneca de Eylianna</div>
-
-<div class="item" onclick="showItem('elmo')">Elmo de Natação</div>
-
-</div>
-
-</div>
-
-<div id="popup" class="popup">
-
-<h3 id="itemNome"></h3>
-
-<p id="itemDesc"></p>
-
-<button class="close" onclick="closePopup()">Fechar</button>
+<button onclick="addItem()">➕ Adicionar item</button>
 
 </div>
 
 <script>
 
-const itens={
+const supabase = window.supabase.createClient(
+"https://fuocztjyfygvjemjwfkx.supabase.co",
+"sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
+)
 
-martelo:{
-nome:"Martelo Eldrack",
-desc:"Um poderoso martelo de guerra marcado por runas antigas."
-},
+async function carregarItens(){
 
-escudo:{
-nome:"Escudo Kutaem",
-desc:"Escudo pesado que já protegeu guerreiros lendários."
-},
+const {data} = await supabase
+.from("itens")
+.select("*")
+.eq("personagem_id",1)
 
-boneca:{
-nome:"Boneca de Eylianna",
-desc:"Uma pequena boneca de sua filha."
-},
+const div = document.getElementById("inventario")
 
-elmo:{
-nome:"Elmo de Natação",
-desc:"Permite ao usuário nadar mais rapidamente."
+div.innerHTML=""
+
+data.forEach(item=>{
+
+div.innerHTML += `
+
+<div class="item">
+
+${item.nome}
+
+<div>
+
+<button onclick="editarItem(${item.id},'${item.nome}')">🪶</button>
+
+<button onclick="deletarItem(${item.id})">🗑</button>
+
+</div>
+
+</div>
+
+`
+
+})
+
 }
 
+async function addItem(){
+
+const nome = prompt("Nome do item")
+
+if(!nome) return
+
+await supabase.from("itens").insert({
+
+personagem_id:1,
+nome:nome,
+descricao:""
+
+})
+
+carregarItens()
+
 }
 
-function showItem(id){
+async function editarItem(id,nomeAtual){
 
-document.getElementById("popup").style.display="block"
+const novoNome = prompt("Editar item",nomeAtual)
 
-document.getElementById("itemNome").innerText=itens[id].nome
+if(!novoNome) return
 
-document.getElementById("itemDesc").innerText=itens[id].desc
+await supabase
+.from("itens")
+.update({nome:novoNome})
+.eq("id",id)
+
+carregarItens()
 
 }
 
-function closePopup(){
+async function deletarItem(id){
 
-document.getElementById("popup").style.display="none"
+if(!confirm("Deletar item?")) return
+
+await supabase
+.from("itens")
+.delete()
+.eq("id",id)
+
+carregarItens()
 
 }
+
+carregarItens()
 
 </script>
 
 </body>
+
 </html>
