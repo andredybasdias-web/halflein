@@ -13,14 +13,17 @@ body{
 margin:0;
 font-family:Georgia, serif;
 background:#1a1a1a;
+color:#2c1a0f;
 }
 
 .hero{
 width:100%;
 height:45vh;
 background-image:url("https://i.imgur.com/xRvt1e9.png");
-background-size:cover;
+background-size:contain;
+background-repeat:no-repeat;
 background-position:center top;
+background-color:#1a1a1a;
 }
 
 .card{
@@ -54,7 +57,7 @@ margin-left:5px;
 
 <div class="card">
 
-<h2>Ghor Lightwood</h2>
+<h2 id="nomePersonagem"></h2>
 
 <div id="inventario"></div>
 
@@ -71,12 +74,40 @@ const supabase = window.supabase.createClient(
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
+const params = new URLSearchParams(window.location.search)
+const token = params.get("token")
+
+let personagem_id = null
+
+async function getPersonagem(){
+
+const {data,error} = await supabase
+.from("personagens")
+.select("*")
+.eq("token",token)
+.single()
+
+if(error || !data){
+
+alert("Personagem não encontrado")
+return
+
+}
+
+personagem_id = data.id
+
+document.getElementById("nomePersonagem").innerText = data.nome
+
+carregarItens()
+
+}
+
 async function carregarItens(){
 
 const {data} = await supabase
 .from("itens")
 .select("*")
-.eq("personagem_id",1)
+.eq("personagem_id",personagem_id)
 
 const div = document.getElementById("inventario")
 
@@ -114,7 +145,7 @@ if(!nome) return
 
 await supabase.from("itens").insert({
 
-personagem_id:1,
+personagem_id:personagem_id,
 nome:nome,
 descricao:""
 
@@ -152,7 +183,7 @@ carregarItens()
 
 }
 
-carregarItens()
+getPersonagem()
 
 </script>
 
