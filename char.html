@@ -5,7 +5,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
@@ -39,10 +39,12 @@ background:#e8d2a9;
 border-radius:5px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 }
 
 button{
 margin-left:5px;
+cursor:pointer;
 }
 
 </style>
@@ -55,7 +57,7 @@ margin-left:5px;
 
 <div class="card">
 
-<h2 id="nomePersonagem"></h2>
+<h2 id="nomePersonagem">Carregando...</h2>
 
 <div id="inventario"></div>
 
@@ -67,7 +69,9 @@ margin-left:5px;
 
 <script>
 
-const supabase = window.supabase.createClient(
+const { createClient } = supabase
+
+const client = createClient(
 "https://fuocztjyfygvjemjwfkx.supabase.co",
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
@@ -79,10 +83,10 @@ let personagem_id = null
 
 async function getPersonagem(){
 
-const {data,error} = await supabase
+const { data, error } = await client
 .from("personagens")
 .select("*")
-.eq("token",token)
+.eq("token", token)
 .single()
 
 if(error || !data){
@@ -102,34 +106,29 @@ carregarItens()
 
 async function carregarItens(){
 
-const {data} = await supabase
+const { data, error } = await client
 .from("itens")
 .select("*")
-.eq("personagem_id",personagem_id)
+.eq("personagem_id", personagem_id)
 
 const div = document.getElementById("inventario")
 
-div.innerHTML=""
+div.innerHTML = ""
 
-data.forEach(item=>{
+data.forEach(item => {
 
-div.innerHTML += `
+const el = document.createElement("div")
+el.className = "item"
 
-<div class="item">
-
-${item.nome}
-
+el.innerHTML = `
+<span>${item.nome}</span>
 <div>
-
-<button onclick="editarItem(${item.id},'${item.nome}')">🪶</button>
-
+<button onclick="editarItem(${item.id}, '${item.nome}')">🪶</button>
 <button onclick="deletarItem(${item.id})">🗑</button>
-
 </div>
-
-</div>
-
 `
+
+div.appendChild(el)
 
 })
 
@@ -141,28 +140,28 @@ const nome = prompt("Nome do item")
 
 if(!nome) return
 
-await supabase.from("itens").insert({
-
-personagem_id:personagem_id,
-nome:nome,
-descricao:""
-
+await client
+.from("itens")
+.insert({
+personagem_id: personagem_id,
+nome: nome,
+descricao: ""
 })
 
 carregarItens()
 
 }
 
-async function editarItem(id,nomeAtual){
+async function editarItem(id, nomeAtual){
 
-const novoNome = prompt("Editar item",nomeAtual)
+const novoNome = prompt("Editar item", nomeAtual)
 
 if(!novoNome) return
 
-await supabase
+await client
 .from("itens")
-.update({nome:novoNome})
-.eq("id",id)
+.update({ nome: novoNome })
+.eq("id", id)
 
 carregarItens()
 
@@ -172,10 +171,10 @@ async function deletarItem(id){
 
 if(!confirm("Deletar item?")) return
 
-await supabase
+await client
 .from("itens")
 .delete()
-.eq("id",id)
+.eq("id", id)
 
 carregarItens()
 
