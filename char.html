@@ -7,42 +7,54 @@
 <style>
 
 body{
-  font-family: Arial;
-  background-color:#1b1b1b;
-  color:white;
+  margin:0;
+  font-family: Georgia, serif;
+  color:#2c1a0f;
+
+  background-image: url("IMAGEM_AQUI");
+  background-size: cover;
+  background-position: center;
+
+  height:100vh;
+
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
 }
 
 .card{
-  background:#2b2b2b;
-  padding:30px;
-  border-radius:15px;
-  width:350px;
-  text-align:center;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
-}
 
-img{
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  margin-bottom:15px;
+  background:rgba(245,222,179,0.92);
+
+  padding:45px;
+
+  width:450px;
+
+  border-radius:14px;
+
+  border:5px solid #5a3b1a;
+
+  box-shadow:0 0 40px rgba(0,0,0,0.7);
+
 }
 
 h1{
-  margin:10px 0;
+  margin-top:0;
+  font-size:34px;
 }
 
 .stat{
-  margin:5px 0;
+  margin:10px 0;
+  font-size:20px;
 }
 
 .inventory{
-  margin-top:15px;
-  text-align:left;
+  margin-top:25px;
+}
+
+li{
+  margin:6px 0;
+  font-size:18px;
 }
 
 </style>
@@ -52,8 +64,6 @@ h1{
 <body>
 
 <div class="card">
-
-<img id="img">
 
 <h1 id="nome"></h1>
 
@@ -77,27 +87,13 @@ const personagens = {
 
 sirion:{
 nome:"Sírion",
-classe:"Ladino",
+classe:"Bardo",
 nivel:5,
 gp:120,
-img:"https://i.imgur.com/4AiXzf8.jpeg",
 inventario:[
-"Adaga",
-"Anel Lunar",
-"Mapa Antigo"
-]
-},
-
-kael:{
-nome:"Kael",
-classe:"Mago",
-nivel:4,
-gp:75,
-img:"https://i.imgur.com/4AiXzf8.jpeg",
-inventario:[
-"Grimório",
-"Cajado Arcano",
-"Poção de Mana"
+"Alaúde",
+"Lira",
+"Anel de Zarabak"
 ]
 }
 
@@ -111,8 +107,6 @@ document.getElementById("nome").innerText = p.nome;
 document.getElementById("classe").innerText = "Classe: " + p.classe;
 document.getElementById("nivel").innerText = "Nível: " + p.nivel;
 document.getElementById("gp").innerText = "Ouro: " + p.gp + " GP";
-
-document.getElementById("img").src = p.img;
 
 const lista = document.getElementById("inventario");
 
