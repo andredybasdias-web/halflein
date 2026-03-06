@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Personagem</title>
+</head>
+
+<body>
+
+<h1 id="nome"></h1>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const user = params.get("user");
+
+if(user === "sirion"){
+  document.getElementById("nome").innerText = "Personagem: Sírion";
+}
+
+else if(user === "kael"){
+  document.getElementById("nome").innerText = "Personagem: Kael";
+}
+
+else{
+  document.getElementById("nome").innerText = "Personagem desconhecido";
+}
+
+</script>
+
+</body>
+</html>
