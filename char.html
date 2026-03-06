@@ -1,28 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Personagem</title>
+
+<title>Personagem</title>
+
+<style>
+
+body{
+  font-family: Arial;
+  background-color:#1b1b1b;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  background:#2b2b2b;
+  padding:30px;
+  border-radius:15px;
+  width:350px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+img{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  margin-bottom:15px;
+}
+
+h1{
+  margin:10px 0;
+}
+
+.stat{
+  margin:5px 0;
+}
+
+.inventory{
+  margin-top:15px;
+  text-align:left;
+}
+
+</style>
+
 </head>
 
 <body>
 
+<div class="card">
+
+<img id="img">
+
 <h1 id="nome"></h1>
+
+<div class="stat" id="classe"></div>
+<div class="stat" id="nivel"></div>
+<div class="stat" id="gp"></div>
+
+<div class="inventory">
+<h3>Inventário</h3>
+<ul id="inventario"></ul>
+</div>
+
+</div>
 
 <script>
 
 const params = new URLSearchParams(window.location.search);
 const user = params.get("user");
 
-if(user === "sirion"){
-  document.getElementById("nome").innerText = "Personagem: Sírion";
+const personagens = {
+
+sirion:{
+nome:"Sírion",
+classe:"Ladino",
+nivel:5,
+gp:120,
+img:"https://i.imgur.com/4AiXzf8.jpeg",
+inventario:[
+"Adaga",
+"Anel Lunar",
+"Mapa Antigo"
+]
+},
+
+kael:{
+nome:"Kael",
+classe:"Mago",
+nivel:4,
+gp:75,
+img:"https://i.imgur.com/4AiXzf8.jpeg",
+inventario:[
+"Grimório",
+"Cajado Arcano",
+"Poção de Mana"
+]
 }
 
-else if(user === "kael"){
-  document.getElementById("nome").innerText = "Personagem: Kael";
+};
+
+const p = personagens[user];
+
+if(p){
+
+document.getElementById("nome").innerText = p.nome;
+document.getElementById("classe").innerText = "Classe: " + p.classe;
+document.getElementById("nivel").innerText = "Nível: " + p.nivel;
+document.getElementById("gp").innerText = "Ouro: " + p.gp + " GP";
+
+document.getElementById("img").src = p.img;
+
+const lista = document.getElementById("inventario");
+
+p.inventario.forEach(item=>{
+const li = document.createElement("li");
+li.innerText = item;
+lista.appendChild(li);
+});
+
 }
 
 else{
-  document.getElementById("nome").innerText = "Personagem desconhecido";
+document.getElementById("nome").innerText="Personagem não encontrado";
 }
 
 </script>
