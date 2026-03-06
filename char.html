@@ -169,6 +169,8 @@ personagem_id = data.id
 
 document.getElementById("nomePersonagem").innerText = data.nome
 
+document.querySelector(".hero").style.backgroundImage = `url(${data.imagem})`
+
 document.getElementById("ouro").innerText = data.ouro
 
 let statsHTML = `
