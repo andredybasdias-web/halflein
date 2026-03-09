@@ -170,6 +170,8 @@ document.getElementById("nomePersonagem").innerText = data.nome
 
 document.querySelector(".hero").style.backgroundImage = `url(${data.imagem})`
 
+document.querySelector(".hero").style.backgroundPosition = `center ${data.imagem_posicao || "40%"}`
+
 document.getElementById("ouro").innerText = data.ouro
 
 let statsHTML = `
