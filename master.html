@@ -114,7 +114,7 @@ window.location.href = `char.html?token=${p.token}&master=true`
 }
 
 el.innerHTML = `
-<img src="${p.imagem}">
+<img src="${p.imagem}" style="object-position:center ${p.imagem_posicao || "40%"}">
 <div class="info">
 <div class="name">${p.nome}</div>
 <div class="meta">${p.raca} • ${p.classe} • Nível ${p.nivel}</div>
