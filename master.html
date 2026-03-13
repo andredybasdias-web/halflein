@@ -100,7 +100,6 @@ async function carregarPersonagens(){
 const { data } = await client
 .from("personagens")
 .select("*")
-.neq("card_id","master")
 
 const grid = document.getElementById("personagens")
 
