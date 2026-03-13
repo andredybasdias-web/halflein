@@ -88,6 +88,20 @@ opacity:0.9;
 
 <script>
 
+const params = new URLSearchParams(window.location.search)
+
+const key = params.get("key")
+
+const MASTER_KEY = "9f3c81d2a7"
+
+if(key !== MASTER_KEY){
+document.body.innerHTML = "Acesso restrito."
+throw new Error("Acesso negado")
+}
+
+// esconder chave da URL
+window.history.replaceState({}, document.title, "master.html")
+
 const { createClient } = supabase
 
 // esconder qualquer parâmetro da URL
