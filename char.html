@@ -147,6 +147,14 @@ const client = createClient(
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
+const personagem = sessionStorage.getItem("personagem")
+
+if(!personagem){
+window.location.href = "login.html"
+}
+
+/* RESTO DO CÓDIGO */
+
 const params = new URLSearchParams(window.location.search)
 
 const token = params.get("token")
