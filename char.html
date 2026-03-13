@@ -155,16 +155,6 @@ window.location.href = "login.html"
 
 /* RESTO DO CÓDIGO */
 
-const params = new URLSearchParams(window.location.search)
-
-const token = params.get("token")
-
-const master = params.get("master") === "true"
-
-const params = new URLSearchParams(window.location.search)
-
-const token = params.get("token")
-
 const master = params.get("master") === "true"
 let personagem_id = null
 let itemAtual = null
@@ -174,7 +164,7 @@ async function getPersonagem(){
 const { data } = await client
 .from("personagens")
 .select("*")
-.eq("token", token)
+.eq("id", personagem)
 .single()
 
 personagem_id = data.id
