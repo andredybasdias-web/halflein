@@ -90,6 +90,11 @@ opacity:0.9;
 
 const { createClient } = supabase
 
+// esconder qualquer parâmetro da URL
+if(window.location.search){
+window.history.replaceState({}, document.title, "master.html")
+}
+  
 const client = createClient(
 "https://fuocztjyfygvjemjwfkx.supabase.co",
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
