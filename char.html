@@ -151,6 +151,11 @@ const params = new URLSearchParams(window.location.search)
 
 const token = params.get("token")
 
+// esconder token da barra do navegador
+if(token){
+window.history.replaceState({}, document.title, "char.html")
+}
+
 const master = params.get("master") === "true"
 
 let personagem_id = null
