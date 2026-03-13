@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<script>
+
+const { createClient } = supabase
+
+const client = createClient(
+"https://fuocztjyfygvjemjwfkx.supabase.co",
+"sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
+)
+
+const params = new URLSearchParams(window.location.search)
+const card = params.get("card")
+
+async function login(){
+
+const { data } = await client
+.from("personagens")
+.select("*")
+.eq("card_id", card)
+.single()
+
+if(!data){
+document.body.innerText="Cartão inválido"
+return
+}
+
+sessionStorage.setItem("personagem", data.id)
+
+if(data.card_id === "master"){
+window.location.href="master.html"
+}else{
+window.location.href="char.html"
+}
+
+}
+
+login()
+
+</script>
+
+</body>
+
+</html>
