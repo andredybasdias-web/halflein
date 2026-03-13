@@ -147,15 +147,12 @@ const client = createClient(
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
-const personagem = sessionStorage.getItem("personagem")
+const params = new URLSearchParams(window.location.search)
 
-if(!personagem){
-window.location.href = "login.html"
-}
-
-/* RESTO DO CÓDIGO */
+const token = params.get("token")
 
 const master = params.get("master") === "true"
+
 let personagem_id = null
 let itemAtual = null
 
@@ -164,7 +161,7 @@ async function getPersonagem(){
 const { data } = await client
 .from("personagens")
 .select("*")
-.eq("id", personagem)
+.eq("token", token)
 .single()
 
 personagem_id = data.id
