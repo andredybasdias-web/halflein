@@ -161,6 +161,11 @@ const token = params.get("token")
 
 const master = params.get("master") === "true"
 
+const params = new URLSearchParams(window.location.search)
+
+const token = params.get("token")
+
+const master = params.get("master") === "true"
 let personagem_id = null
 let itemAtual = null
 
