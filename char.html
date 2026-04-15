@@ -195,7 +195,10 @@ const { data } = await client
 
 if(data){
 document.getElementById("toqueNome").innerText = data.nome
-document.getElementById("toqueImagem").src = data.imagem
+
+const img = document.getElementById("toqueImagem")
+img.src = data.imagem
+img.style.display = "block"
 }
 
 }
