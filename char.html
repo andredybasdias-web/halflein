@@ -197,8 +197,12 @@ if(data){
 document.getElementById("toqueNome").innerText = data.nome
 
 const img = document.getElementById("toqueImagem")
+
 img.src = data.imagem
 img.style.display = "block"
+
+// aplicar escala vinda do banco
+img.style.width = data.escala || "90%"
 }
 
 }
