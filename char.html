@@ -132,11 +132,7 @@ font-size:28px;
 color:white;
 "></h2>
 
-<img id="toqueImagem" style="
-max-width:300px;
-width:80%;
-display:none;
-">
+<img id="toqueImagem" style="display:none;">
 
 </div>
 
@@ -201,8 +197,9 @@ const img = document.getElementById("toqueImagem")
 img.src = data.imagem
 img.style.display = "block"
 
-// aplicar escala vinda do banco
+// tamanho controlado pelo banco
 img.style.width = data.escala || "90%"
+img.style.maxWidth = "none"
 }
 
 }
