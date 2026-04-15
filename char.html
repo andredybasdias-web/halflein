@@ -116,6 +116,14 @@ justify-content:space-between;
 
 <button onclick="novoItem()">➕ Novo item</button>
 
+<!-- SEÇÃO TOQUE DA LUA -->
+
+<div id="toqueSection" style="padding:60px 20px; text-align:center; color:#f3e2c2;">
+
+<h2 id="toqueNome"></h2>
+
+<img id="toqueImagem" style="max-width:80%; margin-top:20px;">
+
 </div>
 
 <div id="popup" class="popup">
@@ -161,6 +169,23 @@ const master = params.get("master") === "true"
 let personagem_id = null
 let itemAtual = null
 
+async function carregarToque(nome){
+
+if(!nome) return
+
+const { data } = await client
+.from("toques")
+.select("*")
+.eq("nome", nome)
+.single()
+
+if(data){
+document.getElementById("toqueNome").innerText = data.nome
+document.getElementById("toqueImagem").src = data.imagem
+}
+
+}
+
 async function getPersonagem(){
 
 const { data } = await client
@@ -194,6 +219,8 @@ statsHTML += `<br><button onclick="editarStats()">🪶 Editar atributos</button>
 document.getElementById("stats").innerHTML = statsHTML
 
 carregarItens()
+
+carregarToque(data.toque_nome)
 
 }
 
