@@ -91,15 +91,19 @@ display:flex;
 justify-content:space-between;
 }
 
+#hero, #card{
+transition: opacity 0.4s ease;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="hero"></div>
+<div class="hero" id="hero"></div>
 
-<div class="card">
+<div class="card" id="card">
 
 <h2 id="nomePersonagem">...</h2>
 
@@ -120,17 +124,17 @@ justify-content:space-between;
 
 <!-- SEÇÃO TOQUE DA LUA -->
 <div id="toqueSection" style="
-padding:80px 20px;
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
 text-align:center;
 color:white;
 background:#1a1a1a;
 ">
 
-<h2 id="toqueNome" style="
-margin-bottom:20px;
-font-size:28px;
-color:white;
-"></h2>
+<h2 id="toqueNome" style="margin-bottom:20px;"></h2>
 
 <img id="toqueImagem" style="display:none;">
 
@@ -373,6 +377,33 @@ getPersonagem()
 }
 
 getPersonagem()
+
+window.addEventListener("scroll", () => {
+
+const toque = document.getElementById("toqueSection")
+const hero = document.getElementById("hero")
+const card = document.getElementById("card")
+
+const rect = toque.getBoundingClientRect()
+
+// quando o toque entra na tela
+if(rect.top < window.innerHeight * 0.7){
+
+hero.style.opacity = "0"
+card.style.opacity = "0"
+hero.style.pointerEvents = "none"
+card.style.pointerEvents = "none"
+
+}else{
+
+hero.style.opacity = "1"
+card.style.opacity = "1"
+hero.style.pointerEvents = "auto"
+card.style.pointerEvents = "auto"
+
+}
+
+})
 
 </script>
 
