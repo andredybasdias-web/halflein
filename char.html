@@ -132,6 +132,8 @@ align-items:center;
 text-align:center;
 color:white;
 background:#1a1a1a;
+opacity:0;
+transition: opacity 0.6s ease;
 ">
 
 <h2 id="toqueNome" style="margin-bottom:20px;"></h2>
@@ -389,17 +391,25 @@ const rect = toque.getBoundingClientRect()
 // quando o toque entra na tela
 if(rect.top < window.innerHeight * 0.7){
 
+// some topo
 hero.style.opacity = "0"
 card.style.opacity = "0"
 hero.style.pointerEvents = "none"
 card.style.pointerEvents = "none"
 
+// mostra toque
+toque.style.opacity = "1"
+
 }else{
 
+// mostra topo
 hero.style.opacity = "1"
 card.style.opacity = "1"
 hero.style.pointerEvents = "auto"
 card.style.pointerEvents = "auto"
+
+// esconde toque
+toque.style.opacity = "0"
 
 }
 
