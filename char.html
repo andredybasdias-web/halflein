@@ -101,6 +101,57 @@ transition: opacity 0.4s ease;
 
 <body>
 
+<!-- OVERLAY MODO BATALHA -->
+<div id="battleOverlay" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+<img id="battleGif" style="
+width:80%;
+max-width:400px;
+">
+
+<div id="battleCard" style="
+background:#f3e2c2;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+display:none;
+text-align:center;
+">
+
+<p>Digite sua iniciativa</p>
+
+<input id="initiativeInput" type="number" style="width:80px;">
+
+<br><br>
+
+<button onclick="enviarIniciativa()">Enviar</button>
+
+</div>
+
+</div>
+
+<!-- ÍCONE DE BATALHA -->
+<img id="battleIcon" style="
+position:fixed;
+top:10px;
+right:10px;
+width:50px;
+display:none;
+z-index:999;
+">
+
 <div class="hero" id="hero"></div>
 
 <div class="card" id="card">
@@ -170,6 +221,9 @@ const client = createClient(
 "https://fuocztjyfygvjemjwfkx.supabase.co",
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
+
+const BATTLE_GIF = "https://i.ibb.co/HDVkgX81/GIF-M-DIA-QUALIDADE-1.gif"
+const BATTLE_ICON = "https://i.ibb.co/v6Vc7Xbv/Modo-de-Batalha.png"
 
 const params = new URLSearchParams(window.location.search)
 
@@ -359,6 +413,47 @@ getPersonagem()
 
 async function editarStats(){
 
+function iniciarBatalha(){
+
+const overlay = document.getElementById("battleOverlay")
+const gif = document.getElementById("battleGif")
+const card = document.getElementById("battleCard")
+
+overlay.style.display = "flex"
+gif.src = BATTLE_GIF
+
+// esconder card inicialmente
+card.style.display = "none"
+
+// mostrar card depois de 1.5s
+setTimeout(() => {
+card.style.display = "block"
+}, 1500)
+
+}
+
+async function enviarIniciativa(){
+
+const valor = document.getElementById("initiativeInput").value
+
+if(!valor) return
+
+// salvar no banco
+await client.from("iniciativas").insert({
+personagem_id: personagem_id,
+valor: parseInt(valor)
+})
+
+// esconder overlay
+document.getElementById("battleOverlay").style.display = "none"
+
+// mostrar ícone
+const icon = document.getElementById("battleIcon")
+icon.src = BATTLE_ICON
+icon.style.display = "block"
+
+}
+
 const raca = prompt("Raça")
 
 const classe = prompt("Classe")
@@ -379,6 +474,10 @@ getPersonagem()
 }
 
 getPersonagem()
+
+setTimeout(() => {
+iniciarBatalha()
+}, 2000)
 
 window.addEventListener("scroll", () => {
 
