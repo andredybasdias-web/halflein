@@ -207,11 +207,7 @@ async function carregarIniciativas(){
 
 const { data } = await client
 .from("iniciativas")
-.select(`
-valor,
-timestamp,
-personagens ( nome )
-`)
+.select("*")
 .order("valor", { ascending: false })
 .order("timestamp", { ascending: true })
 
@@ -222,9 +218,19 @@ lista.innerHTML = "<p style='text-align:center;'>Aguardando iniciativas...</p>"
 return
 }
 
+// 🔥 buscar nomes manualmente
+const ids = data.map(i => i.personagem_id)
+
+const { data: personagens } = await client
+.from("personagens")
+.select("id, nome")
+.in("id", ids)
+
 lista.innerHTML = ""
 
 data.forEach((item, i) => {
+
+const personagem = personagens.find(p => p.id === item.personagem_id)
 
 lista.innerHTML += `
 <div style="
@@ -233,7 +239,7 @@ justify-content:space-between;
 margin-bottom:8px;
 ${i === 0 ? "color: gold; font-weight:bold;" : ""}
 ">
-<span>${item.personagens.nome}</span>
+<span>${personagem ? personagem.nome : "???"}</span>
 <span>${item.valor}</span>
 </div>
 `
