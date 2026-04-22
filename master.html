@@ -84,6 +84,28 @@ opacity:0.9;
 
 <div class="grid" id="personagens"></div>
 
+<!-- BOTÃO MODO BATALHA -->
+<div style="text-align:center; margin-top:30px;">
+
+<img id="battleBtn" onclick="toggleBatalha()" style="
+width:120px;
+cursor:pointer;
+">
+
+</div>
+
+<!-- CARD DE INICIATIVA -->
+<div id="initiativeList" style="
+display:none;
+max-width:400px;
+margin:20px auto;
+background:rgba(0,0,0,0.7);
+padding:20px;
+border-radius:10px;
+color:white;
+">
+</div>
+  
 </div>
 
 <script>
@@ -114,8 +136,49 @@ const client = createClient(
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
+// IMAGENS DO BOTÃO
+const BTN_OFF = "https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png"
+const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"  
+
 async function carregarPersonagens(){
 
+async function toggleBatalha(){
+
+// pega estado atual
+const { data } = await client
+.from("batalha")
+.select("*")
+.eq("id",1)
+.single()
+
+const novoEstado = !data.ativa
+
+// atualiza banco
+await client
+.from("batalha")
+.update({ativa: novoEstado})
+.eq("id",1)
+
+const btn = document.getElementById("battleBtn")
+const lista = document.getElementById("initiativeList")
+
+if(novoEstado){
+
+btn.src = BTN_ON
+lista.style.display = "block"
+
+}else{
+
+btn.src = BTN_OFF
+lista.style.display = "none"
+
+// limpa iniciativas ao desligar
+await client.from("iniciativas").delete().neq("id",0)
+
+}
+
+}
+  
 const { data } = await client
 .from("personagens")
 .select("*")
@@ -147,6 +210,8 @@ grid.appendChild(el)
 }
 
 carregarPersonagens()
+
+document.getElementById("battleBtn").src = BTN_OFF
 
 </script>
 
