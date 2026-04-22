@@ -105,15 +105,14 @@ border-radius:10px;
 color:white;
 ">
 </div>
-  
+
 </div>
 
 <script>
 
+// 🔐 PROTEÇÃO
 const params = new URLSearchParams(window.location.search)
-
 const key = params.get("key")
-
 const MASTER_KEY = "9f3c81d2a7"
 
 if(key !== MASTER_KEY){
@@ -121,30 +120,23 @@ document.body.innerHTML = "Acesso restrito."
 throw new Error("Acesso negado")
 }
 
-// esconder chave da URL
+// esconder URL
 window.history.replaceState({}, document.title, "master.html")
 
 const { createClient } = supabase
 
-// esconder qualquer parâmetro da URL
-if(window.location.search){
-window.history.replaceState({}, document.title, "master.html")
-}
-  
 const client = createClient(
 "https://fuocztjyfygvjemjwfkx.supabase.co",
 "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
-// IMAGENS DO BOTÃO
+// 🎨 IMAGENS
 const BTN_OFF = "https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png"
-const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"  
+const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
 
-async function carregarPersonagens(){
-
+// ⚔️ TOGGLE BATALHA
 async function toggleBatalha(){
 
-// pega estado atual
 const { data } = await client
 .from("batalha")
 .select("*")
@@ -153,7 +145,6 @@ const { data } = await client
 
 const novoEstado = !data.ativa
 
-// atualiza banco
 await client
 .from("batalha")
 .update({ativa: novoEstado})
@@ -172,23 +163,27 @@ lista.style.display = "block"
 btn.src = BTN_OFF
 lista.style.display = "none"
 
-// limpa iniciativas ao desligar
+// limpar iniciativas
 await client.from("iniciativas").delete().neq("id",0)
 
 }
 
 }
-  
+
+// 👥 CARREGAR PERSONAGENS
+async function carregarPersonagens(){
+
 const { data } = await client
 .from("personagens")
 .select("*")
 
 const grid = document.getElementById("personagens")
 
+grid.innerHTML = ""
+
 data.forEach(p => {
 
 const el = document.createElement("div")
-
 el.className = "card"
 
 el.onclick = () => {
@@ -209,9 +204,23 @@ grid.appendChild(el)
 
 }
 
+// 🚀 INICIALIZAÇÃO
+window.onload = async () => {
+
 carregarPersonagens()
 
-document.getElementById("battleBtn").src = BTN_OFF
+// estado inicial do botão
+const { data } = await client
+.from("batalha")
+.select("*")
+.eq("id",1)
+.single()
+
+const btn = document.getElementById("battleBtn")
+
+btn.src = data.ativa ? BTN_ON : BTN_OFF
+
+}
 
 </script>
 
