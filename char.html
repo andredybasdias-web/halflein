@@ -473,6 +473,28 @@ getPersonagem()
 
 getPersonagem()
 
+client
+.channel('batalha-channel')
+.on(
+'postgres_changes',
+{
+event: 'UPDATE',
+schema: 'public',
+table: 'batalha'
+},
+(payload) => {
+
+if(payload.new.ativa === true){
+iniciarBatalha()
+}else{
+document.getElementById("battleOverlay").style.display = "none"
+document.getElementById("battleIcon").style.display = "none"
+}
+
+}
+)
+.subscribe()
+
 setTimeout(() => {
 iniciarBatalha()
 }, 2000)
