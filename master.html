@@ -84,17 +84,12 @@ opacity:0.9;
 
 <div class="grid" id="personagens"></div>
 
-<!-- BOTÃO MODO BATALHA -->
+<!-- BOTÃO -->
 <div style="text-align:center; margin-top:30px;">
-
-<img id="battleBtn" onclick="toggleBatalha()" src="https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png" style="
-width:120px;
-cursor:pointer;
-">
-
+<img id="battleBtn" onclick="toggleBatalha()" src="https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png" style="width:120px; cursor:pointer;">
 </div>
 
-<!-- CARD DE INICIATIVA -->
+<!-- LISTA -->
 <div id="initiativeList" style="
 display:none;
 max-width:400px;
@@ -108,21 +103,6 @@ color:white;
 
 </div>
 
-client
-.channel('iniciativas-channel')
-.on(
-'postgres_changes',
-{
-event: '*',
-schema: 'public',
-table: 'iniciativas'
-},
-() => {
-carregarIniciativas()
-}
-)
-.subscribe()
-  
 <script>
 
 // 🔐 PROTEÇÃO
@@ -135,7 +115,6 @@ document.body.innerHTML = "Acesso restrito."
 throw new Error("Acesso negado")
 }
 
-// esconder URL
 window.history.replaceState({}, document.title, "master.html")
 
 const { createClient } = supabase
@@ -149,10 +128,8 @@ const client = createClient(
 const BTN_OFF = "https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png"
 const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
 
-// ⚔️ TOGGLE BATALHA
+// ⚔️ TOGGLE
 async function toggleBatalha(){
-
-console.log("clicou botão")
 
 const { data, error } = await client
 .from("batalha")
@@ -161,33 +138,25 @@ const { data, error } = await client
 .single()
 
 if(error || !data){
-alert("Erro ao acessar tabela batalha")
-console.log(error)
+alert("Erro ao acessar batalha")
 return
 }
 
 const novoEstado = !data.ativa
 
-const { error: updateError } = await client
+await client
 .from("batalha")
 .update({ativa: novoEstado})
 .eq("id",1)
-
-if(updateError){
-alert("Erro ao atualizar batalha")
-console.log(updateError)
-return
-}
 
 const btn = document.getElementById("battleBtn")
 const lista = document.getElementById("initiativeList")
 
 if(novoEstado){
 
-carregarIniciativas()  
-  
 btn.src = BTN_ON
 lista.style.display = "block"
+carregarIniciativas()
 
 }else{
 
@@ -200,7 +169,7 @@ await client.from("iniciativas").delete().neq("id",0)
 
 }
 
-// 👥 CARREGAR PERSONAGENS
+// 👥 PERSONAGENS
 async function carregarPersonagens(){
 
 const { data } = await client
@@ -208,7 +177,6 @@ const { data } = await client
 .select("*")
 
 const grid = document.getElementById("personagens")
-
 grid.innerHTML = ""
 
 data.forEach(p => {
@@ -234,11 +202,7 @@ grid.appendChild(el)
 
 }
 
-// 🚀 INICIALIZAÇÃO
-window.onload = async () => {
-
-carregarPersonagens()
-
+// 📊 INICIATIVAS
 async function carregarIniciativas(){
 
 const { data } = await client
@@ -260,10 +224,15 @@ return
 
 lista.innerHTML = ""
 
-data.forEach(item => {
+data.forEach((item, i) => {
 
 lista.innerHTML += `
-<div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+<div style="
+display:flex;
+justify-content:space-between;
+margin-bottom:8px;
+${i === 0 ? "color: gold; font-weight:bold;" : ""}
+">
 <span>${item.personagens.nome}</span>
 <span>${item.valor}</span>
 </div>
@@ -273,7 +242,11 @@ lista.innerHTML += `
 
 }
 
-// estado inicial do botão
+// 🚀 INIT
+window.onload = async () => {
+
+carregarPersonagens()
+
 const { data } = await client
 .from("batalha")
 .select("*")
@@ -281,10 +254,25 @@ const { data } = await client
 .single()
 
 const btn = document.getElementById("battleBtn")
-
-btn.src = data.ativa ? BTN_ON : BTN_OFF
+btn.src = data?.ativa ? BTN_ON : BTN_OFF
 
 }
+
+// 🔄 REALTIME
+client
+.channel('iniciativas-channel')
+.on(
+'postgres_changes',
+{
+event: '*',
+schema: 'public',
+table: 'iniciativas'
+},
+() => {
+carregarIniciativas()
+}
+)
+.subscribe()
 
 </script>
 
