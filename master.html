@@ -137,18 +137,32 @@ const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
 // ⚔️ TOGGLE BATALHA
 async function toggleBatalha(){
 
-const { data } = await client
+console.log("clicou botão")
+
+const { data, error } = await client
 .from("batalha")
 .select("*")
 .eq("id",1)
 .single()
 
+if(error || !data){
+alert("Erro ao acessar tabela batalha")
+console.log(error)
+return
+}
+
 const novoEstado = !data.ativa
 
-await client
+const { error: updateError } = await client
 .from("batalha")
 .update({ativa: novoEstado})
 .eq("id",1)
+
+if(updateError){
+alert("Erro ao atualizar batalha")
+console.log(updateError)
+return
+}
 
 const btn = document.getElementById("battleBtn")
 const lista = document.getElementById("initiativeList")
@@ -163,7 +177,6 @@ lista.style.display = "block"
 btn.src = BTN_OFF
 lista.style.display = "none"
 
-// limpar iniciativas
 await client.from("iniciativas").delete().neq("id",0)
 
 }
