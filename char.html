@@ -411,8 +411,6 @@ getPersonagem()
 
 }
 
-async function editarStats(){
-
 function iniciarBatalha(){
 
 const overlay = document.getElementById("battleOverlay")
@@ -422,10 +420,8 @@ const card = document.getElementById("battleCard")
 overlay.style.display = "flex"
 gif.src = BATTLE_GIF
 
-// esconder card inicialmente
 card.style.display = "none"
 
-// mostrar card depois de 1.5s
 setTimeout(() => {
 card.style.display = "block"
 }, 1500)
@@ -438,26 +434,23 @@ const valor = document.getElementById("initiativeInput").value
 
 if(!valor) return
 
-// salvar no banco
 await client.from("iniciativas").insert({
 personagem_id: personagem_id,
 valor: parseInt(valor)
 })
 
-// esconder overlay
 document.getElementById("battleOverlay").style.display = "none"
 
-// mostrar ícone
 const icon = document.getElementById("battleIcon")
 icon.src = BATTLE_ICON
 icon.style.display = "block"
 
 }
 
+async function editarStats(){
+
 const raca = prompt("Raça")
-
 const classe = prompt("Classe")
-
 const nivel = prompt("Nível")
 
 await client
