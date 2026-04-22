@@ -132,7 +132,12 @@ text-align:center;
 
 <p>Digite sua iniciativa</p>
 
-<input id="initiativeInput" type="number" style="width:80px;">
+<input 
+id="initiativeInput" 
+type="number" 
+inputmode="numeric" 
+pattern="[0-9]*" 
+style="width:80px;">
 
 <br><br>
 
@@ -223,7 +228,7 @@ const client = createClient(
 )
 
 const BATTLE_GIF = "https://i.ibb.co/HDVkgX81/GIF-M-DIA-QUALIDADE-1.gif"
-const BATTLE_ICON = "https://i.ibb.co/v6Vc7Xbv/Modo-de-Batalha.png"
+const BATTLE_ICON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
 
 const params = new URLSearchParams(window.location.search)
 
