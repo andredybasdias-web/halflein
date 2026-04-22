@@ -108,6 +108,21 @@ color:white;
 
 </div>
 
+client
+.channel('iniciativas-channel')
+.on(
+'postgres_changes',
+{
+event: '*',
+schema: 'public',
+table: 'iniciativas'
+},
+() => {
+carregarIniciativas()
+}
+)
+.subscribe()
+  
 <script>
 
 // 🔐 PROTEÇÃO
@@ -169,6 +184,8 @@ const lista = document.getElementById("initiativeList")
 
 if(novoEstado){
 
+carregarIniciativas()  
+  
 btn.src = BTN_ON
 lista.style.display = "block"
 
@@ -221,6 +238,40 @@ grid.appendChild(el)
 window.onload = async () => {
 
 carregarPersonagens()
+
+async function carregarIniciativas(){
+
+const { data } = await client
+.from("iniciativas")
+.select(`
+valor,
+timestamp,
+personagens ( nome )
+`)
+.order("valor", { ascending: false })
+.order("timestamp", { ascending: true })
+
+const lista = document.getElementById("initiativeList")
+
+if(!data || data.length === 0){
+lista.innerHTML = "<p style='text-align:center;'>Aguardando iniciativas...</p>"
+return
+}
+
+lista.innerHTML = ""
+
+data.forEach(item => {
+
+lista.innerHTML += `
+<div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+<span>${item.personagens.nome}</span>
+<span>${item.valor}</span>
+</div>
+`
+
+})
+
+}
 
 // estado inicial do botão
 const { data } = await client
