@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha do Personagem</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+SC:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root{
+  --void: #12100e;
+  --void-2: #1c1712;
+  --parchment: #e9d3a3;
+  --parchment-deep: #d4b878;
+  --ink: #2b1c10;
+  --ink-soft: #4a3521;
+  --brass: #b8863c;
+  --brass-bright: #dfae5f;
+  --moonlight: #aebedb;
+  --wax: #7a2a24;
+  --wax-bright: #9c3a32;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ink);
+  font-family:'EB Garamond', serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- HERO ---------- */
+
+.hero{
+  width:100%;
+  height:48vh;
+  background-size:cover;
+  background-position:center 40%;
+  position:relative;
+  transition:opacity 0.5s ease;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(18,16,14,0) 55%, var(--void) 100%);
+}
+
+/* ---------- CARD / "PLATAFORMA" ---------- */
+
+.card{
+  position:relative;
+  background:var(--parchment);
+  margin:-60px 16px 24px 16px;
+  padding:34px 24px 26px 24px;
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:5px;
+  border-radius:2px;
+  transition:opacity 0.5s ease;
+}
+
+/* selo de ouro, cravado no canto como um lacre */
+.coin{
+  position:absolute;
+  top:-26px;
+  right:14px;
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, var(--brass-bright), var(--brass) 60%, #8a651f 100%);
+  border:2px solid var(--void);
+  box-shadow:0 3px 8px rgba(0,0,0,0.45), inset 0 0 0 3px rgba(43,28,16,0.35);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  color:var(--ink);
+  transition:transform 0.15s ease;
+}
+.coin:hover{ transform:scale(1.06); }
+.coin .coinIcon{ font-size:14px; line-height:1; }
+.coin .coinValue{ font-size:15px; font-weight:600; line-height:1.1; }
+
+.charName{
+  font-family:'Cinzel', serif;
+  font-weight:600;
+  font-size:26px;
+  margin:4px 60px 14px 0;
+  letter-spacing:0.02em;
+  color:var(--ink);
+}
+
+/* linha de atributos, tipo tabela de livro */
+.statRow{
+  display:flex;
+  border-top:1px solid var(--brass);
+  border-bottom:1px solid var(--brass);
+  padding:12px 0;
+  margin-bottom:14px;
+}
+.statCell{
+  flex:1;
+  text-align:center;
+  padding:0 8px;
+  border-left:1px solid rgba(184,134,60,0.4);
+}
+.statCell:first-child{ border-left:none; }
+.statLabel{
+  font-family:'Cormorant SC', serif;
+  font-size:12px;
+  letter-spacing:0.14em;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:2px;
+}
+.statValue{
+  font-family:'EB Garamond', serif;
+  font-size:17px;
+  font-weight:600;
+  color:var(--ink);
+}
+
+.masterEditRow{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+/* ---------- BOTÕES ---------- */
+
+.btn{
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  font-size:13px;
+  font-weight:600;
+  border:1px solid var(--brass);
+  background:var(--parchment);
+  color:var(--ink);
+  padding:9px 18px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:background 0.15s ease, transform 0.1s ease;
+}
+.btn:hover{ background:var(--parchment-deep); }
+.btn:active{ transform:translateY(1px); }
+
+.btn-brass{
+  background:var(--brass);
+  color:var(--void);
+  border-color:var(--brass);
+}
+.btn-brass:hover{ background:var(--brass-bright); }
+
+.btn-wax{
+  background:transparent;
+  color:var(--wax);
+  border-color:var(--wax);
+}
+.btn-wax:hover{ background:rgba(122,42,36,0.12); }
+
+.btn-icon{
+  padding:6px 9px;
+  font-size:14px;
+}
+
+/* ---------- INVENTÁRIO ---------- */
+
+.sectionLabel{
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  font-size:14px;
+  color:var(--ink-soft);
+  border-bottom:1px solid var(--brass);
+  padding-bottom:6px;
+  margin:0 0 10px 0;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:11px 12px;
+  margin:6px 0;
+  background:var(--parchment-deep);
+  border-left:3px solid var(--brass);
+  border-radius:2px;
+}
+.item span{ font-size:16px; }
+.item .itemActions{ display:flex; gap:6px; }
+
+.addItemWrap{
+  text-align:center;
+  margin-top:16px;
+}
+
+/* ---------- TOQUE DA LUA ---------- */
+
+#toqueSection{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  color:var(--moonlight);
+  background:radial-gradient(circle at 50% 35%, var(--void-2), var(--void) 70%);
+  opacity:0;
+  transition:opacity 1.2s ease-out;
+  padding:40px 20px;
+}
+#toqueSection .eyebrow{
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  font-size:12px;
+  color:rgba(174,190,219,0.6);
+  margin-bottom:10px;
+}
+#toqueNome{
+  font-family:'Cinzel', serif;
+  font-weight:500;
+  font-size:24px;
+  margin:0 0 24px 0;
+  text-shadow:0 0 18px rgba(174,190,219,0.45);
+}
+#toqueImagem{ display:none; }
+
+/* ---------- MODAIS ---------- */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(10,8,6,0.72);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:200;
+  padding:20px;
+}
+.overlay.open{ display:flex; }
+
+.modal{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:5px;
+  border-radius:2px;
+  padding:26px 22px;
+  width:320px;
+  max-width:100%;
+}
+.modal h3{
+  font-family:'Cinzel', serif;
+  font-size:18px;
+  margin:0 0 16px 0;
+  color:var(--ink);
+}
+.modal label{
+  display:block;
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-bottom:5px;
+}
+.modal input, .modal textarea{
+  width:100%;
+  font-family:'EB Garamond', serif;
+  font-size:16px;
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  border-bottom:1.5px solid var(--brass);
+  padding:6px 2px;
+  margin-bottom:16px;
+  outline:none;
+}
+.modal input:focus, .modal textarea:focus{ border-bottom-color:var(--ink); }
+.modal textarea{ resize:vertical; min-height:70px; }
+
+.modalButtons{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:6px;
+}
+
+/* ---------- MODO BATALHA ---------- */
+
+#battleOverlay{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#battleGif{ width:80%; max-width:400px; }
+#battleCard{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  padding:22px;
+  border-radius:2px;
+  margin-top:22px;
+  display:none;
+  text-align:center;
+  font-family:'EB Garamond', serif;
+}
+#initiativeInput{
+  width:90px;
+  text-align:center;
+  font-family:'EB Garamond', serif;
+  font-size:18px;
+  border:none;
+  border-bottom:1.5px solid var(--brass);
+  background:transparent;
+  outline:none;
+  margin:12px 0;
+}
+
+#battleIcon{
+  position:fixed;
+  top:12px;
+  right:12px;
+  width:46px;
+  display:none;
+  z-index:999;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+
+/* respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- OVERLAY MODO BATALHA -->
+<div id="battleOverlay">
+  <img id="battleGif" alt="">
+  <div id="battleCard">
+    <p class="sectionLabel" style="border:none;">Digite sua iniciativa</p>
+    <br>
+    <input id="initiativeInput" type="number" inputmode="numeric" pattern="[0-9]*">
+    <br><br>
+    <button class="btn btn-brass" onclick="enviarIniciativa()">Enviar</button>
+  </div>
+</div>
+
+<img id="battleIcon" alt="Modo de batalha ativo">
+
+<div class="hero" id="hero"></div>
+
+<div class="card" id="card">
+
+  <div class="coin" id="coinBadge" onclick="openModal('modalOuro')" title="Editar ouro">
+    <span class="coinIcon">🪙</span>
+    <span class="coinValue" id="ouroValue">0</span>
+  </div>
+
+  <h1 class="charName" id="nomePersonagem">...</h1>
+
+  <div class="statRow">
+    <div class="statCell">
+      <span class="statLabel">Raça</span>
+      <span class="statValue" id="statRaca">—</span>
+    </div>
+    <div class="statCell">
+      <span class="statLabel">Classe</span>
+      <span class="statValue" id="statClasse">—</span>
+    </div>
+    <div class="statCell">
+      <span class="statLabel">Nível</span>
+      <span class="statValue" id="statNivel">—</span>
+    </div>
+  </div>
+
+  <div class="masterEditRow" id="masterEditRow" style="display:none;">
+    <button class="btn" onclick="openStats()">🪶 Editar atributos</button>
+  </div>
+
+  <div class="sectionLabel">Inventário</div>
+  <div id="inventario"></div>
+
+  <div class="addItemWrap">
+    <button class="btn btn-brass" onclick="openModal('modalNovoItem')">➕ Novo item</button>
+  </div>
+
+</div>
+
+<div id="toqueSection">
+  <div class="eyebrow">Marca da Lua</div>
+  <h2 id="toqueNome"></h2>
+  <img id="toqueImagem" alt="">
+</div>
+
+<!-- MODAL: EDITAR OURO -->
+<div class="overlay" id="overlay-modalOuro">
+  <div class="modal">
+    <h3>Editar ouro</h3>
+    <label for="inputOuro">Novo valor</label>
+    <input id="inputOuro" type="number" inputmode="numeric">
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalOuro')">Cancelar</button>
+      <button class="btn btn-brass" onclick="salvarOuro()">🪶 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOVO ITEM -->
+<div class="overlay" id="overlay-modalNovoItem">
+  <div class="modal">
+    <h3>Novo item</h3>
+    <label for="inputNovoItem">Nome do item</label>
+    <input id="inputNovoItem" type="text">
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalNovoItem')">Cancelar</button>
+      <button class="btn btn-brass" onclick="salvarNovoItem()">➕ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DETALHE DO ITEM -->
+<div class="overlay" id="overlay-modalItem">
+  <div class="modal">
+    <h3 id="popupNome"></h3>
+    <label for="popupDescricao">Descrição</label>
+    <textarea id="popupDescricao"></textarea>
+    <div class="modalButtons">
+      <button class="btn btn-wax" onclick="deletarItemAtual()">🗑 Deletar</button>
+      <button class="btn" onclick="closeModal('modalItem')">Fechar</button>
+      <button class="btn btn-brass" onclick="salvarDescricao()">🪶 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR ATRIBUTOS (MESTRE) -->
+<div class="overlay" id="overlay-modalStats">
+  <div class="modal">
+    <h3>Editar atributos</h3>
+    <label for="inputRaca">Raça</label>
+    <input id="inputRaca" type="text">
+    <label for="inputClasse">Classe</label>
+    <input id="inputClasse" type="text">
+    <label for="inputNivel">Nível</label>
+    <input id="inputNivel" type="number">
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalStats')">Cancelar</button>
+      <button class="btn btn-brass" onclick="salvarStats()">🪶 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CHAVE DE MESTRE -->
+<div class="overlay" id="overlay-modalMasterKey">
+  <div class="modal">
+    <h3>Chave de mestre</h3>
+    <label for="inputMasterKey">Digite a chave</label>
+    <input id="inputMasterKey" type="password">
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalMasterKey')">Cancelar</button>
+      <button class="btn btn-brass" onclick="confirmarMasterKey()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const { createClient } = supabase
+
+const client = createClient(
+  "https://fuocztjyfygvjemjwfkx.supabase.co",
+  "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
+)
+
+const BATTLE_GIF = "https://i.ibb.co/HDVkgX81/GIF-M-DIA-QUALIDADE-1.gif"
+const BATTLE_ICON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
+
+const params = new URLSearchParams(window.location.search)
+
+// Para teste sem cartão NFC, cai no token da Eleanor se nenhum vier na URL.
+const token = params.get("token") || "eleanor123"
+
+try{
+  window.history.replaceState({}, document.title, "char.html")
+}catch(e){
+  console.warn("Não foi possível limpar a URL (normal em prévias):", e.message)
+}
+
+const master = params.get("master") === "true"
+
+let personagem_id = null
+let itemAtual = null
+let masterKeyResolve = null
+
+// ---------- MODAIS (genérico) ----------
+
+function openModal(id){
+  document.getElementById("overlay-" + id).classList.add("open")
+}
+function closeModal(id){
+  document.getElementById("overlay-" + id).classList.remove("open")
+}
+
+// ---------- CHAVE DE MESTRE ----------
+// Fica só na memória da aba (sessionStorage), nunca na URL.
+// A chave em si só é validada dentro do banco (função master_*).
+
+function getMasterKey(){
+  return new Promise((resolve) => {
+    const saved = sessionStorage.getItem("master_key")
+    if(saved){
+      resolve(saved)
+      return
+    }
+    masterKeyResolve = resolve
+    document.getElementById("inputMasterKey").value = ""
+    openModal("modalMasterKey")
+  })
+}
+
+function confirmarMasterKey(){
+  const key = document.getElementById("inputMasterKey").value
+  if(!key) return
+  sessionStorage.setItem("master_key", key)
+  closeModal("modalMasterKey")
+  if(masterKeyResolve){
+    masterKeyResolve(key)
+    masterKeyResolve = null
+  }
+}
+
+// ---------- DADOS ----------
+
+async function carregarToque(nome){
+
+  if(!nome) return
+
+  const { data } = await client
+    .from("toques")
+    .select("*")
+    .eq("nome", nome)
+    .single()
+
+  if(data){
+    document.getElementById("toqueNome").innerText = data.nome
+    const img = document.getElementById("toqueImagem")
+    img.src = data.imagem
+    img.style.display = "block"
+    img.style.width = data.escala || "90%"
+    img.style.maxWidth = "none"
+  }
+
+}
+
+async function getPersonagem(){
+
+  const { data, error } = await client
+    .from("personagens")
+    .select("*")
+    .eq("token", token)
+    .single()
+
+  if(error || !data){
+    document.body.innerHTML = "<p style='color:#e9d3a3;text-align:center;margin-top:40vh;font-family:EB Garamond,serif;'>Personagem não encontrado.</p>"
+    return
+  }
+
+  personagem_id = data.id
+
+  document.getElementById("nomePersonagem").innerText = data.nome
+  document.querySelector(".hero").style.backgroundImage = `url(${data.imagem})`
+  document.querySelector(".hero").style.backgroundPosition = `center ${data.imagem_posicao || "40%"}`
+
+  document.getElementById("ouroValue").innerText = data.ouro
+  document.getElementById("statRaca").innerText = data.raca
+  document.getElementById("statClasse").innerText = data.classe
+  document.getElementById("statNivel").innerText = data.nivel
+
+  if(master){
+    document.getElementById("masterEditRow").style.display = "block"
+  }
+
+  carregarItens()
+  carregarToque(data.toque_nome)
+
+}
+
+async function carregarItens(){
+
+  const { data } = await client
+    .from("itens")
+    .select("*")
+    .eq("personagem_id", personagem_id)
+
+  const div = document.getElementById("inventario")
+  div.innerHTML = ""
+
+  data.forEach(item => {
+
+    const el = document.createElement("div")
+    el.className = "item"
+
+    el.innerHTML = `
+      <span>${item.nome}</span>
+      <div class="itemActions">
+        <button class="btn btn-icon" onclick='abrirItem(${item.id})'>📜</button>
+      </div>
+    `
+
+    el.dataset.nome = item.nome
+    el.dataset.descricao = item.descricao || ""
+
+    div.appendChild(el)
+
+  })
+
+}
+
+function abrirItem(id){
+
+  const el = [...document.querySelectorAll(".item")].find(e => e.querySelector("button").getAttribute("onclick").includes(`(${id})`))
+
+  itemAtual = id
+  document.getElementById("popupNome").innerText = el ? el.dataset.nome : ""
+  document.getElementById("popupDescricao").value = el ? el.dataset.descricao : ""
+  openModal("modalItem")
+
+}
+
+async function salvarDescricao(){
+
+  const desc = document.getElementById("popupDescricao").value
+
+  const { error } = await client.rpc("player_update_item", {
+    p_token: token,
+    p_item_id: itemAtual,
+    p_descricao: desc
+  })
+
+  if(error){ alert("Não foi possível salvar: " + error.message) }
+
+  closeModal("modalItem")
+  carregarItens()
+
+}
+
+async function deletarItemAtual(){
+
+  if(!confirm("Deletar este item?")) return
+
+  const { error } = await client.rpc("player_delete_item", {
+    p_token: token,
+    p_item_id: itemAtual
+  })
+
+  if(error){ alert("Não foi possível deletar: " + error.message) }
+
+  closeModal("modalItem")
+  carregarItens()
+
+}
+
+async function salvarNovoItem(){
+
+  const nome = document.getElementById("inputNovoItem").value.trim()
+  if(!nome) return
+
+  const { error } = await client.rpc("player_add_item", {
+    p_token: token,
+    p_nome: nome
+  })
+
+  if(error){ alert("Não foi possível adicionar: " + error.message) }
+
+  document.getElementById("inputNovoItem").value = ""
+  closeModal("modalNovoItem")
+  carregarItens()
+
+}
+
+function openModalOuroPrefill(){
+  document.getElementById("inputOuro").value = document.getElementById("ouroValue").innerText
+}
+
+async function salvarOuro(){
+
+  const novo = document.getElementById("inputOuro").value
+  if(novo === "") return
+
+  const { error } = await client.rpc("player_update_ouro", {
+    p_token: token,
+    p_ouro: parseInt(novo)
+  })
+
+  if(error){ alert("Não foi possível salvar: " + error.message) }
+
+  closeModal("modalOuro")
+  getPersonagem()
+
+}
+
+async function openStats(){
+
+  const key = await getMasterKey()
+  if(!key) return
+
+  document.getElementById("inputRaca").value = document.getElementById("statRaca").innerText
+  document.getElementById("inputClasse").value = document.getElementById("statClasse").innerText
+  document.getElementById("inputNivel").value = document.getElementById("statNivel").innerText
+
+  openModal("modalStats")
+
+}
+
+async function salvarStats(){
+
+  const key = sessionStorage.getItem("master_key")
+  const raca = document.getElementById("inputRaca").value
+  const classe = document.getElementById("inputClasse").value
+  const nivel = parseInt(document.getElementById("inputNivel").value)
+
+  const { error } = await client.rpc("master_update_stats", {
+    p_master_key: key,
+    p_personagem_id: personagem_id,
+    p_raca: raca,
+    p_classe: classe,
+    p_nivel: nivel
+  })
+
+  if(error){
+    alert("Chave de mestre incorreta ou erro ao salvar.")
+    sessionStorage.removeItem("master_key")
+    closeModal("modalStats")
+    return
+  }
+
+  closeModal("modalStats")
+  getPersonagem()
+
+}
+
+// ---------- MODO BATALHA ----------
+
+function iniciarBatalha(){
+
+  const overlay = document.getElementById("battleOverlay")
+  const gif = document.getElementById("battleGif")
+  const card = document.getElementById("battleCard")
+
+  overlay.style.display = "flex"
+  gif.src = BATTLE_GIF
+  card.style.display = "none"
+
+  setTimeout(() => { card.style.display = "block" }, 1500)
+
+}
+
+async function enviarIniciativa(){
+
+  const valor = document.getElementById("initiativeInput").value
+  if(!valor) return
+
+  const { error } = await client.rpc("player_send_iniciativa", {
+    p_token: token,
+    p_valor: parseInt(valor)
+  })
+
+  if(error){
+    alert("Não foi possível enviar: " + error.message)
+    return
+  }
+
+  document.getElementById("battleOverlay").style.display = "none"
+  const icon = document.getElementById("battleIcon")
+  icon.src = BATTLE_ICON
+  icon.style.display = "block"
+
+}
+
+// ---------- INIT ----------
+
+document.getElementById("coinBadge").addEventListener("click", openModalOuroPrefill)
+
+getPersonagem()
+
+client
+  .channel('batalha-channel')
+  .on(
+    'postgres_changes',
+    { event: 'UPDATE', schema: 'public', table: 'batalha' },
+    (payload) => {
+      if(payload.new.ativa === true){
+        iniciarBatalha()
+      }else{
+        document.getElementById("battleOverlay").style.display = "none"
+        document.getElementById("battleIcon").style.display = "none"
+      }
+    }
+  )
+  .subscribe()
+
+// ---------- SCROLL: revela o Toque da Lua ----------
+
+window.addEventListener("scroll", () => {
+
+  const toque = document.getElementById("toqueSection")
+  const hero = document.getElementById("hero")
+  const card = document.getElementById("card")
+  const rect = toque.getBoundingClientRect()
+
+  if(rect.top < window.innerHeight * 0.7){
+    hero.style.opacity = "0"
+    card.style.opacity = "0"
+    hero.style.pointerEvents = "none"
+    card.style.pointerEvents = "none"
+    toque.style.opacity = "1"
+  }else{
+    hero.style.opacity = "1"
+    card.style.opacity = "1"
+    hero.style.pointerEvents = "auto"
+    card.style.pointerEvents = "auto"
+    toque.style.opacity = "0"
+  }
+
+})
+
+</script>
+
+</body>
+</html>
