@@ -91,7 +91,7 @@ body{
   transition:transform 0.15s ease;
 }
 .coin:hover{ transform:scale(1.06); }
-.coin .coinIcon{ font-size:14px; line-height:1; }
+.coin .coinIcon{ font-family:'Cormorant SC', serif; font-size:12px; letter-spacing:0.08em; line-height:1; }
 .coin .coinValue{ font-size:15px; font-weight:600; line-height:1.1; }
 
 .charName{
@@ -223,14 +223,6 @@ body{
   transition:opacity 1.2s ease-out;
   padding:40px 20px;
 }
-#toqueSection .eyebrow{
-  font-family:'Cormorant SC', serif;
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  font-size:12px;
-  color:rgba(174,190,219,0.6);
-  margin-bottom:10px;
-}
 #toqueNome{
   font-family:'Cinzel', serif;
   font-weight:500;
@@ -296,7 +288,8 @@ body{
 
 .modalButtons{
   display:flex;
-  justify-content:flex-end;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:8px;
   margin-top:6px;
 }
@@ -375,7 +368,7 @@ body{
 <div class="card" id="card">
 
   <div class="coin" id="coinBadge" onclick="openModal('modalOuro')" title="Editar ouro">
-    <span class="coinIcon">🪙</span>
+    <span class="coinIcon">GP</span>
     <span class="coinValue" id="ouroValue">0</span>
   </div>
 
@@ -410,7 +403,6 @@ body{
 </div>
 
 <div id="toqueSection">
-  <div class="eyebrow">Marca da Lua</div>
   <h2 id="toqueNome"></h2>
   <img id="toqueImagem" alt="">
 </div>
@@ -448,9 +440,9 @@ body{
     <label for="popupDescricao">Descrição</label>
     <textarea id="popupDescricao"></textarea>
     <div class="modalButtons">
-      <button class="btn btn-wax" onclick="deletarItemAtual()">🗑 Deletar</button>
+      <button class="btn btn-wax" onclick="deletarItemAtual()">Deletar</button>
       <button class="btn" onclick="closeModal('modalItem')">Fechar</button>
-      <button class="btn btn-brass" onclick="salvarDescricao()">🪶 Salvar</button>
+      <button class="btn btn-brass" onclick="salvarDescricao()">Salvar</button>
     </div>
   </div>
 </div>
