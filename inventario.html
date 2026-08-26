@@ -494,7 +494,26 @@ const params = new URLSearchParams(window.location.search)
 const token = params.get("p")
 
 if(!token){
-  document.body.innerHTML = "<p style='color:#e9d3a3;text-align:center;margin-top:40vh;font-family:EB Garamond,serif;'>Link inválido.</p>"
+  document.body.innerHTML = `
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      text-align:center;
+    ">
+      <span style="
+        font-family:'Cormorant SC', serif;
+        letter-spacing:0.1em;
+        text-transform:uppercase;
+        color:#e9d3a3;
+        font-weight:600;
+        font-size:clamp(40px, 16vw, 160px);
+        line-height:1;
+      ">Halflein</span>
+    </div>
+  `
   throw new Error("Sem token")
 }
 
@@ -765,6 +784,8 @@ function iniciarBatalha(){
   const gif = document.getElementById("battleGif")
   const card = document.getElementById("battleCard")
 
+  document.getElementById("initiativeInput").value = ""
+
   overlay.style.display = "flex"
   gif.src = BATTLE_GIF
   card.style.display = "none"
@@ -799,7 +820,22 @@ async function enviarIniciativa(){
 
 document.getElementById("coinBadge").addEventListener("click", openModalOuroPrefill)
 
+async function checkBatalhaAtual(){
+
+  const { data } = await client
+    .from("batalha")
+    .select("*")
+    .eq("id", 1)
+    .single()
+
+  if(data?.ativa === true){
+    iniciarBatalha()
+  }
+
+}
+
 getPersonagem()
+checkBatalhaAtual()
 
 client
   .channel('batalha-channel')
