@@ -778,17 +778,42 @@ async function salvarStats(){
 
 // ---------- MODO BATALHA ----------
 
-function iniciarBatalha(){
+async function jaEnviouIniciativa(){
+
+  const { data } = await client
+    .from("iniciativas")
+    .select("id")
+    .eq("personagem_id", personagem_id)
+    .maybeSingle()
+
+  return !!data
+
+}
+
+async function iniciarBatalha(){
 
   const overlay = document.getElementById("battleOverlay")
   const gif = document.getElementById("battleGif")
   const card = document.getElementById("battleCard")
 
-  document.getElementById("initiativeInput").value = ""
-
   overlay.style.display = "flex"
   gif.src = BATTLE_GIF
   card.style.display = "none"
+
+  const jaEnviou = await jaEnviouIniciativa()
+
+  if(jaEnviou){
+    setTimeout(() => {
+      overlay.style.display = "none"
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      const icon = document.getElementById("battleIcon")
+      icon.src = BATTLE_ICON
+      icon.style.display = "block"
+    }, 1500)
+    return
+  }
+
+  document.getElementById("initiativeInput").value = ""
 
   setTimeout(() => { card.style.display = "block" }, 1500)
 
@@ -810,6 +835,8 @@ async function enviarIniciativa(){
   }
 
   document.getElementById("battleOverlay").style.display = "none"
+  window.scrollTo({ top: 0, behavior: "smooth" })
+
   const icon = document.getElementById("battleIcon")
   icon.src = BATTLE_ICON
   icon.style.display = "block"
@@ -834,8 +861,10 @@ async function checkBatalhaAtual(){
 
 }
 
-getPersonagem()
-checkBatalhaAtual()
+;(async function init(){
+  await getPersonagem()
+  checkBatalhaAtual()
+})()
 
 client
   .channel('batalha-channel')
