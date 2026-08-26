@@ -318,7 +318,7 @@ const client = createClient(
 // ⚠️ Troque pela MESMA chave usada nos scripts SQL (01 e 02).
 // Essa chave fica visível pra quem inspecionar o código desta página —
 // é a troca feita para não precisar mais digitar senha aqui.
-const MASTER_KEY = "9f3c81d2a7"
+const MASTER_KEY = "TROQUE_ESSA_CHAVE_AQUI"
 
 let currentPersonagemId = null
 let toquesCache = []
@@ -385,7 +385,7 @@ async function carregarPersonagens(){
       <div class="info">
         <div class="name">${p.nome}</div>
         <div class="meta">${p.raca} • ${p.classe} • Nível ${p.nivel}</div>
-        <div class="toqueAtual">🌙 ${p.toque_nome || "Sem Toque da Lua"}</div>
+        <div class="toqueAtual">${p.toque_nome || "Sem Toque da Lua"}</div>
         <div class="actions">
           <button class="btn" onclick="abrirFicha('${p.token}')">Abrir ficha</button>
           <button class="btn" onclick="abrirModalToque(${p.id}, '${(p.toque_nome || "").replace(/'/g, "&#39;")}')">Toque da Lua</button>
@@ -479,7 +479,7 @@ async function toggleBatalha(){
   })
 
   if(error){
-    alert("Chave de mestre incorreta ou erro ao alterar o modo de batalha.")
+    alert("Erro ao alterar o modo de batalha: " + error.message)
     return
   }
 
