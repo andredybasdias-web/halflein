@@ -491,11 +491,15 @@ const BATTLE_ICON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
 
 const params = new URLSearchParams(window.location.search)
 
-// Para teste sem cartão NFC, cai no token da Eleanor se nenhum vier na URL.
-const token = params.get("token") || "eleanor123"
+const token = params.get("p")
+
+if(!token){
+  document.body.innerHTML = "<p style='color:#e9d3a3;text-align:center;margin-top:40vh;font-family:EB Garamond,serif;'>Link inválido.</p>"
+  throw new Error("Sem token")
+}
 
 try{
-  window.history.replaceState({}, document.title, "char.html")
+  window.history.replaceState({}, document.title, "inventario.html")
 }catch(e){
   console.warn("Não foi possível limpar a URL (normal em prévias):", e.message)
 }
