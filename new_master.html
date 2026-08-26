@@ -315,10 +315,38 @@ const client = createClient(
   "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
-// ⚠️ Troque pela MESMA chave usada nos scripts SQL (01 e 02).
-// Essa chave fica visível pra quem inspecionar o código desta página —
-// é a troca feita para não precisar mais digitar senha aqui.
-const MASTER_KEY = "9f3c81d2a7"
+const params = new URLSearchParams(window.location.search)
+const MASTER_KEY = params.get("p")
+
+if(!MASTER_KEY){
+  document.body.innerHTML = `
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      text-align:center;
+    ">
+      <span style="
+        font-family:'Cormorant SC', serif;
+        letter-spacing:0.1em;
+        text-transform:uppercase;
+        color:#e9d3a3;
+        font-weight:600;
+        font-size:clamp(40px, 16vw, 160px);
+        line-height:1;
+      ">Halflein</span>
+    </div>
+  `
+  throw new Error("Sem chave de mestre na URL")
+}
+
+try{
+  window.history.replaceState({}, document.title, "new_master.html")
+}catch(e){
+  console.warn("Não foi possível limpar a URL (normal em prévias):", e.message)
+}
 
 let currentPersonagemId = null
 let toquesCache = []
@@ -344,7 +372,7 @@ async function mostrarDashboard(){
   const ok = await validarChave(MASTER_KEY)
   if(!ok){
     document.getElementById("keyWarning").innerText =
-      "⚠ A chave de mestre configurada no código não confere com o banco. Edições vão falhar até corrigir."
+      "⚠ A chave de mestre do link não confere com o banco. Edições vão falhar até corrigir."
   }
 
   await carregarToques()
