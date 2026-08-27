@@ -259,6 +259,25 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
   margin-top:6px;
 }
 
+.palavraRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid rgba(184,134,60,0.3);
+  font-size:15px;
+}
+.palavraRow button{
+  background:none;
+  border:none;
+  color:var(--wax);
+  cursor:pointer;
+  font-family:'Cormorant SC', serif;
+  font-size:13px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+
 @media (prefers-reduced-motion: reduce){
   *{ transition:none !important; }
 }
@@ -273,6 +292,7 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
 
   <div class="dashHeader">
     <h1>Painel do Mestre</h1>
+    <button class="btn btn-ghost" onclick="abrirModalPalavras()">Palavras proibidas</button>
   </div>
 
   <div class="lockError" id="keyWarning" style="text-align:center;"></div>
@@ -302,6 +322,26 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
     <div class="modalButtons">
       <button class="btn" onclick="closeModal('modalToque')">Cancelar</button>
       <button class="btn btn-brass" onclick="salvarToque()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: PALAVRAS PROIBIDAS ===================== -->
+<div class="overlay" id="overlay-modalPalavras">
+  <div class="modal" style="width:340px;">
+    <h3>Palavras proibidas</h3>
+    <p style="font-size:14px;color:var(--ink-soft);margin-top:0;">
+      Qualquer uma dessas palavras, se escrita por um jogador (em itens ou backstory), vira sublinhado automaticamente. A lista nunca é enviada pros jogadores.
+    </p>
+
+    <div id="listaPalavras" style="margin-bottom:16px;max-height:200px;overflow-y:auto;"></div>
+
+    <label for="inputNovaPalavra">Adicionar palavra</label>
+    <input id="inputNovaPalavra" type="text" onkeydown="if(event.key==='Enter') adicionarPalavra()">
+
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalPalavras')">Fechar</button>
+      <button class="btn btn-brass" onclick="adicionarPalavra()">Adicionar</button>
     </div>
   </div>
 </div>
@@ -457,6 +497,77 @@ async function salvarToque(){
 
   closeModal("modalToque")
   carregarPersonagens()
+
+}
+
+// ---------- PALAVRAS PROIBIDAS ----------
+
+async function abrirModalPalavras(){
+  await carregarPalavras()
+  openModal("modalPalavras")
+}
+
+async function carregarPalavras(){
+
+  const { data, error } = await client.rpc("master_list_palavras_proibidas", {
+    p_master_key: MASTER_KEY
+  })
+
+  const div = document.getElementById("listaPalavras")
+
+  if(error){
+    div.innerHTML = "<p style='color:var(--wax);font-size:14px;'>Erro ao carregar: " + error.message + "</p>"
+    return
+  }
+
+  if(!data || data.length === 0){
+    div.innerHTML = "<p style='font-size:14px;color:var(--ink-soft);'>Nenhuma palavra cadastrada ainda.</p>"
+    return
+  }
+
+  div.innerHTML = data.map(p => `
+    <div class="palavraRow">
+      <span>${p.palavra}</span>
+      <button onclick="removerPalavra(${p.id})">Remover</button>
+    </div>
+  `).join("")
+
+}
+
+async function adicionarPalavra(){
+
+  const input = document.getElementById("inputNovaPalavra")
+  const palavra = input.value.trim()
+  if(!palavra) return
+
+  const { error } = await client.rpc("master_add_palavra_proibida", {
+    p_master_key: MASTER_KEY,
+    p_palavra: palavra
+  })
+
+  if(error){
+    alert("Não foi possível adicionar: " + error.message)
+    return
+  }
+
+  input.value = ""
+  carregarPalavras()
+
+}
+
+async function removerPalavra(id){
+
+  const { error } = await client.rpc("master_remove_palavra_proibida", {
+    p_master_key: MASTER_KEY,
+    p_id: id
+  })
+
+  if(error){
+    alert("Não foi possível remover: " + error.message)
+    return
+  }
+
+  carregarPalavras()
 
 }
 
