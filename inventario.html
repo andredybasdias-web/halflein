@@ -139,6 +139,37 @@ body{
   margin-bottom:18px;
 }
 
+/* ---------- CARROSSEL (Inventário <-> Backstory) ---------- */
+
+.swipeWrapper{
+  overflow:hidden;
+  position:relative;
+  touch-action: pan-y;
+}
+
+.swipeTrack{
+  display:flex;
+  will-change:transform;
+}
+
+.swipeSlide{
+  flex:0 0 100%;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.backstoryText{
+  font-size:16px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  color:var(--ink);
+  margin-bottom:16px;
+}
+.backstoryText.empty{
+  color:var(--ink-soft);
+  font-style:italic;
+}
+
 /* ---------- BOTÕES ---------- */
 
 .btn{
@@ -365,7 +396,7 @@ body{
 
 <div class="hero" id="hero"></div>
 
-<div class="card" id="card">
+<div class="card" id="cardFrame">
 
   <div class="coin" id="coinBadge" onclick="openModal('modalOuro')" title="Editar ouro">
     <span class="coinIcon">GP</span>
@@ -393,11 +424,26 @@ body{
     <button class="btn" onclick="openStats()">Editar atributos</button>
   </div>
 
-  <div class="sectionLabel">Inventário</div>
-  <div id="inventario"></div>
+  <div class="swipeWrapper" id="swipeWrapper">
+    <div class="swipeTrack" id="swipeTrack">
 
-  <div class="addItemWrap">
-    <button class="btn btn-brass" onclick="openModal('modalNovoItem')">➕ Novo item</button>
+      <div class="swipeSlide" id="slideInventario">
+        <div class="sectionLabel">Inventário</div>
+        <div id="inventario"></div>
+        <div class="addItemWrap">
+          <button class="btn btn-brass" onclick="openModal('modalNovoItem')">➕ Novo item</button>
+        </div>
+      </div>
+
+      <div class="swipeSlide" id="slideBackstory">
+        <div class="sectionLabel">Backstory</div>
+        <div class="backstoryText" id="backstoryText"></div>
+        <div class="addItemWrap">
+          <button class="btn" onclick="abrirModalBackstory()">Editar</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </div>
@@ -443,6 +489,19 @@ body{
       <button class="btn btn-wax" onclick="deletarItemAtual()">Deletar</button>
       <button class="btn btn-brass" onclick="salvarDescricao()">Salvar</button>
       <button class="btn" onclick="closeModal('modalItem')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BACKSTORY -->
+<div class="overlay" id="overlay-modalBackstory">
+  <div class="modal" style="width:340px;">
+    <h3>Backstory</h3>
+    <label for="inputBackstory">História do personagem</label>
+    <textarea id="inputBackstory" style="min-height:220px;"></textarea>
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalBackstory')">Cancelar</button>
+      <button class="btn btn-brass" onclick="salvarBackstory()">Salvar</button>
     </div>
   </div>
 </div>
@@ -527,6 +586,7 @@ const master = params.get("master") === "true"
 
 let personagem_id = null
 let itemAtual = null
+let personagemBackstory = ""
 let masterKeyResolve = null
 
 // ---------- MODAIS (genérico) ----------
@@ -613,12 +673,31 @@ async function getPersonagem(){
   document.getElementById("statClasse").innerText = data.classe
   document.getElementById("statNivel").innerText = data.nivel
 
+  personagemBackstory = data.backstory || ""
+  renderBackstory()
+
   if(master){
     document.getElementById("masterEditRow").style.display = "block"
   }
 
-  carregarItens()
+  await carregarItens()
   carregarToque(data.toque_nome)
+
+  atualizarAlturaCarrossel()
+
+}
+
+function renderBackstory(){
+
+  const el = document.getElementById("backstoryText")
+
+  if(personagemBackstory.trim() === ""){
+    el.innerText = "Nenhuma história registrada ainda."
+    el.classList.add("empty")
+  }else{
+    el.innerText = personagemBackstory
+    el.classList.remove("empty")
+  }
 
 }
 
@@ -650,6 +729,8 @@ async function carregarItens(){
     div.appendChild(el)
 
   })
+
+  atualizarAlturaCarrossel()
 
 }
 
@@ -776,6 +857,132 @@ async function salvarStats(){
 
 }
 
+// ---------- BACKSTORY ----------
+
+function abrirModalBackstory(){
+  document.getElementById("inputBackstory").value = personagemBackstory
+  openModal("modalBackstory")
+}
+
+async function salvarBackstory(){
+
+  const texto = document.getElementById("inputBackstory").value
+
+  const { error } = await client.rpc("player_update_backstory", {
+    p_token: token,
+    p_backstory: texto
+  })
+
+  if(error){
+    alert("Não foi possível salvar: " + error.message)
+    return
+  }
+
+  closeModal("modalBackstory")
+  await getPersonagem()
+
+}
+
+// ---------- CARROSSEL (Inventário <-> Backstory) ----------
+
+const swipeWrapper = document.getElementById("swipeWrapper")
+const swipeTrack = document.getElementById("swipeTrack")
+
+let currentSlide = 0
+let isDragging = false
+let axisLocked = null
+let startX = 0
+let startY = 0
+
+function getSlideWidth(){
+  return swipeWrapper.getBoundingClientRect().width
+}
+
+function goToSlide(index){
+
+  currentSlide = Math.max(0, Math.min(1, index))
+  swipeTrack.style.transition = "transform 0.3s ease"
+  swipeTrack.style.transform = `translateX(${-currentSlide * getSlideWidth()}px)`
+  atualizarAlturaCarrossel()
+
+}
+
+function atualizarAlturaCarrossel(){
+
+  const slide = currentSlide === 0
+    ? document.getElementById("slideInventario")
+    : document.getElementById("slideBackstory")
+
+  swipeWrapper.style.transition = "height 0.3s ease"
+  swipeWrapper.style.height = slide.scrollHeight + "px"
+
+}
+
+swipeTrack.addEventListener("pointerdown", (e) => {
+  isDragging = true
+  axisLocked = null
+  startX = e.clientX
+  startY = e.clientY
+  swipeTrack.style.transition = "none"
+})
+
+window.addEventListener("pointermove", (e) => {
+
+  if(!isDragging) return
+
+  const dx = e.clientX - startX
+  const dy = e.clientY - startY
+
+  if(axisLocked === null){
+    if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
+      axisLocked = Math.abs(dx) > Math.abs(dy) ? "x" : "y"
+    }
+  }
+
+  if(axisLocked === "y") return
+
+  if(axisLocked === "x"){
+    const width = getSlideWidth()
+    let offset = (-currentSlide * width) + dx
+
+    // resistência nas pontas, pra não "escapar" pra um terceiro estado
+    if(offset > 0) offset *= 0.3
+    if(offset < -width) offset = -width + (offset + width) * 0.3
+
+    swipeTrack.style.transform = `translateX(${offset}px)`
+  }
+
+})
+
+window.addEventListener("pointerup", (e) => {
+
+  if(!isDragging) return
+  isDragging = false
+
+  if(axisLocked !== "x"){
+    axisLocked = null
+    return
+  }
+
+  const dx = e.clientX - startX
+  const width = getSlideWidth()
+  const threshold = width * 0.22
+
+  let novoIndex = currentSlide
+  if(dx < -threshold) novoIndex = 1
+  if(dx > threshold) novoIndex = 0
+
+  goToSlide(novoIndex)
+  axisLocked = null
+
+})
+
+window.addEventListener("resize", () => {
+  swipeTrack.style.transition = "none"
+  swipeTrack.style.transform = `translateX(${-currentSlide * getSlideWidth()}px)`
+  atualizarAlturaCarrossel()
+})
+
 // ---------- MODO BATALHA ----------
 
 async function jaEnviouIniciativa(){
@@ -888,7 +1095,7 @@ window.addEventListener("scroll", () => {
 
   const toque = document.getElementById("toqueSection")
   const hero = document.getElementById("hero")
-  const card = document.getElementById("card")
+  const card = document.getElementById("cardFrame")
   const rect = toque.getBoundingClientRect()
 
   if(rect.top < window.innerHeight * 0.7){
