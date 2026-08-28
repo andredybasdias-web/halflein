@@ -450,8 +450,8 @@ body{
 </div>
 
 <div id="toqueSection">
-  <h2 id="toqueNome"></h2>
-  <img id="toqueImagem" alt="">
+  <h2 id="toqueNome" onclick="abrirDescricaoToque()" style="cursor:pointer;"></h2>
+  <img id="toqueImagem" alt="" onclick="abrirDescricaoToque()" style="cursor:pointer;">
 </div>
 
 <!-- MODAL: EDITAR OURO -->
@@ -476,6 +476,17 @@ body{
     <div class="modalButtons">
       <button class="btn" onclick="closeModal('modalNovoItem')">Cancelar</button>
       <button class="btn btn-brass" onclick="salvarNovoItem()">➕ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TOQUE DA LUA (somente visualização) -->
+<div class="overlay" id="overlay-modalToqueInfo">
+  <div class="modal">
+    <h3 id="toqueInfoNome"></h3>
+    <p id="toqueInfoDescricao" style="font-size:16px;line-height:1.6;margin:0 0 18px 0;"></p>
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalToqueInfo')">Fechar</button>
     </div>
   </div>
 </div>
@@ -629,6 +640,8 @@ function confirmarMasterKey(){
 
 // ---------- DADOS ----------
 
+let toqueDescricaoAtual = ""
+
 async function carregarToque(nome){
 
   if(!nome) return
@@ -641,6 +654,7 @@ async function carregarToque(nome){
 
   if(data){
     document.getElementById("toqueNome").innerText = data.nome
+    toqueDescricaoAtual = data.descricao || ""
     const img = document.getElementById("toqueImagem")
     img.src = data.imagem
     img.style.display = "block"
@@ -648,6 +662,14 @@ async function carregarToque(nome){
     img.style.maxWidth = "none"
   }
 
+}
+
+function abrirDescricaoToque(){
+  if(!document.getElementById("toqueNome").innerText) return
+  document.getElementById("toqueInfoNome").innerText = document.getElementById("toqueNome").innerText
+  document.getElementById("toqueInfoDescricao").innerText =
+    toqueDescricaoAtual.trim() === "" ? "Nenhuma descrição registrada ainda." : toqueDescricaoAtual
+  openModal("modalToqueInfo")
 }
 
 async function getPersonagem(){
