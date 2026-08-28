@@ -1,287 +1,698 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do Mestre</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+SC:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
+:root{
+  --void: #12100e;
+  --void-2: #1c1712;
+  --parchment: #e9d3a3;
+  --parchment-deep: #d4b878;
+  --ink: #2b1c10;
+  --ink-soft: #4a3521;
+  --brass: #b8863c;
+  --brass-bright: #dfae5f;
+  --moonlight: #aebedb;
+  --wax: #7a2a24;
+  --wax-bright: #9c3a32;
+}
+
+*{ box-sizing:border-box; }
+
 body{
-margin:0;
-font-family:Georgia, serif;
-background-image:url("https://i.imgur.com/DG7KMZ9.png");
-background-size:cover;
-background-position:center;
-color:white;
+  margin:0;
+  min-height:100vh;
+  background:var(--void);
+  color:var(--parchment);
+  font-family:'EB Garamond', serif;
+  -webkit-font-smoothing:antialiased;
 }
 
-.overlay{
-background:rgba(0,0,0,0.55);
-min-height:100vh;
-padding:40px;
+h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
+
+.eyebrow{
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  font-size:12px;
+  color:var(--ink-soft);
 }
 
-h1{
-text-align:center;
-margin-bottom:30px;
+/* ---------- BOTÕES (mesmos da ficha) ---------- */
+
+.btn{
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  font-size:13px;
+  font-weight:600;
+  border:1px solid var(--brass);
+  background:var(--parchment);
+  color:var(--ink);
+  padding:9px 16px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:background 0.15s ease, transform 0.1s ease;
 }
+.btn:hover{ background:var(--parchment-deep); }
+.btn:active{ transform:translateY(1px); }
+.btn-brass{ background:var(--brass); color:var(--void); border-color:var(--brass); }
+.btn-brass:hover{ background:var(--brass-bright); }
+.btn-wax{ background:transparent; color:var(--wax); border-color:var(--wax); }
+.btn-wax:hover{ background:rgba(122,42,36,0.12); }
+.btn-ghost{ background:transparent; color:var(--parchment); border-color:var(--parchment-deep); }
+.btn-ghost:hover{ background:rgba(233,211,163,0.08); }
+.btn-full{ width:100%; }
+
+/* ---------- TELA DE ENTRADA ---------- */
+
+#lockScreen{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.lockCard{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:5px;
+  border-radius:2px;
+  padding:34px 26px;
+  width:320px;
+  max-width:100%;
+  color:var(--ink);
+  text-align:center;
+}
+.lockCard h1{ font-size:22px; margin-bottom:4px; }
+.lockCard .eyebrow{ margin-bottom:14px; display:block; }
+.lockCard input{
+  width:100%;
+  font-family:'EB Garamond', serif;
+  font-size:16px;
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  border-bottom:1.5px solid var(--brass);
+  padding:8px 2px;
+  margin-bottom:8px;
+  outline:none;
+  text-align:center;
+}
+.lockCard input:focus{ border-bottom-color:var(--ink); }
+.lockError{
+  color:var(--wax);
+  font-size:13px;
+  min-height:18px;
+  margin-bottom:10px;
+}
+
+/* ---------- DASHBOARD ---------- */
+
+#dashboard{ display:none; padding:32px 18px 60px 18px; max-width:1000px; margin:0 auto; }
+
+.dashHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:14px;
+  border-bottom:1px solid var(--brass);
+  padding-bottom:16px;
+  margin-bottom:26px;
+}
+.dashHeader h1{ font-size:26px; color:var(--parchment); }
+
+/* ---------- CONTROLE DE BATALHA ---------- */
+
+.battlePanel{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:5px;
+  border-radius:2px;
+  padding:20px;
+  color:var(--ink);
+  margin-bottom:32px;
+}
+.battlePanel .row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.battleStatus{ font-family:'Cormorant SC', serif; letter-spacing:0.1em; text-transform:uppercase; font-size:13px; }
+.battleStatus.on{ color:var(--wax); }
+
+.iniciativaList{ margin-top:16px; border-top:1px solid var(--brass); padding-top:12px; }
+.iniciativaRow{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  font-size:16px;
+}
+.iniciativaRow.top{ color:var(--wax); font-weight:600; }
+
+/* ---------- GRID DE PERSONAGENS ---------- */
 
 .grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;
-max-width:900px;
-margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
 }
 
-.card{
-background:rgba(0,0,0,0.6);
-border:2px solid #d4af37;
-border-radius:10px;
-overflow:hidden;
-cursor:pointer;
-transition:0.2s;
+.charCard{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:4px;
+  border-radius:2px;
+  overflow:hidden;
+  color:var(--ink);
+  margin:4px;
 }
 
-.card:hover{
-transform:scale(1.03);
+.charCard .portrait{
+  height:150px;
+  background-size:cover;
+  background-position:center 40%;
+  border-bottom:1px solid var(--brass);
 }
 
-.card img{
-width:100%;
-height:200px;
-object-fit:cover;
-object-position:center;
+.charCard .info{ padding:14px; }
+.charCard .name{ font-family:'Cinzel', serif; font-size:17px; margin-bottom:4px; }
+.charCard .meta{ font-size:14px; color:var(--ink-soft); margin-bottom:6px; }
+.charCard .toqueAtual{ font-size:13px; color:var(--ink-soft); margin-bottom:12px; font-style:italic; }
+
+.charCard .actions{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
-.info{
-padding:10px;
-text-align:center;
+/* ---------- MODAIS ---------- */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(10,8,6,0.72);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:200;
+  padding:20px;
+}
+.overlay.open{ display:flex; }
+
+.modal{
+  background:var(--parchment);
+  border:1.5px solid var(--brass);
+  outline:1px solid var(--brass);
+  outline-offset:5px;
+  border-radius:2px;
+  padding:26px 22px;
+  width:320px;
+  max-width:100%;
+  color:var(--ink);
+}
+.modal h3{ font-size:18px; margin:0 0 16px 0; }
+.modal label{
+  display:block;
+  font-family:'Cormorant SC', serif;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-bottom:5px;
+}
+.modal select{
+  width:100%;
+  font-family:'EB Garamond', serif;
+  font-size:16px;
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  border-bottom:1.5px solid var(--brass);
+  padding:8px 2px;
+  margin-bottom:18px;
+  outline:none;
+}
+.modalButtons{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:6px;
 }
 
-.name{
-font-size:20px;
-margin-bottom:5px;
+.palavraRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid rgba(184,134,60,0.3);
+  font-size:15px;
+}
+.palavraRow button{
+  background:none;
+  border:none;
+  color:var(--wax);
+  cursor:pointer;
+  font-family:'Cormorant SC', serif;
+  font-size:13px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
 }
 
-.meta{
-font-size:14px;
-opacity:0.9;
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="overlay">
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dashboard">
 
-<h1>Painel do Mestre</h1>
+  <div class="dashHeader">
+    <h1>Painel do Mestre</h1>
+  </div>
 
-<div class="grid" id="personagens"></div>
+  <div class="lockError" id="keyWarning" style="text-align:center;"></div>
 
-<!-- BOTÃO -->
-<div style="text-align:center; margin-top:30px;">
-<img id="battleBtn" onclick="toggleBatalha()" src="https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png" style="width:120px; cursor:pointer;">
+  <div class="battlePanel">
+    <div class="row">
+      <div>
+        <div class="eyebrow">Modo de batalha</div>
+        <div class="battleStatus" id="battleStatusText">Inativo</div>
+      </div>
+      <button class="btn btn-brass" id="battleToggleBtn" onclick="toggleBatalha()">⚔ Iniciar batalha</button>
+    </div>
+
+    <div class="iniciativaList" id="iniciativaList" style="display:none;"></div>
+  </div>
+
+  <div class="grid" id="personagensGrid"></div>
+
+  <div style="text-align:center;margin-top:32px;">
+    <button class="btn btn-ghost" onclick="abrirModalPalavras()">Palavras proibidas</button>
+  </div>
+
 </div>
 
-<!-- LISTA -->
-<div id="initiativeList" style="
-display:none;
-max-width:400px;
-margin:20px auto;
-background:rgba(0,0,0,0.7);
-padding:20px;
-border-radius:10px;
-color:white;
-">
+<!-- ===================== MODAL: TOQUE DA LUA ===================== -->
+<div class="overlay" id="overlay-modalToque">
+  <div class="modal">
+    <h3>Toque da Lua</h3>
+    <label for="selectToque">Escolha o toque</label>
+    <select id="selectToque"></select>
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalToque')">Cancelar</button>
+      <button class="btn btn-brass" onclick="salvarToque()">Salvar</button>
+    </div>
+  </div>
 </div>
 
+<!-- ===================== MODAL: PALAVRAS PROIBIDAS ===================== -->
+<div class="overlay" id="overlay-modalPalavras">
+  <div class="modal" style="width:340px;">
+    <h3>Palavras proibidas</h3>
+    <p style="font-size:14px;color:var(--ink-soft);margin-top:0;">
+      Qualquer uma dessas palavras, se escrita por um jogador (em itens ou backstory), vira sublinhado automaticamente. A lista nunca é enviada pros jogadores.
+    </p>
+
+    <div id="listaPalavras" style="margin-bottom:16px;max-height:200px;overflow-y:auto;"></div>
+
+    <label for="inputNovaPalavra">Adicionar palavra</label>
+    <input id="inputNovaPalavra" type="text" onkeydown="if(event.key==='Enter') adicionarPalavra()">
+
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalPalavras')">Fechar</button>
+      <button class="btn btn-brass" onclick="adicionarPalavra()">Adicionar</button>
+    </div>
+  </div>
 </div>
 
 <script>
 
-// 🔐 PROTEÇÃO
-const params = new URLSearchParams(window.location.search)
-const key = params.get("key")
-const MASTER_KEY = "9f3c81d2a7"
-
-if(key !== MASTER_KEY){
-document.body.innerHTML = "Acesso restrito."
-throw new Error("Acesso negado")
-}
-
-window.history.replaceState({}, document.title, "master.html")
-
 const { createClient } = supabase
 
 const client = createClient(
-"https://fuocztjyfygvjemjwfkx.supabase.co",
-"sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
+  "https://fuocztjyfygvjemjwfkx.supabase.co",
+  "sb_publishable_n7ngCkGvC6jdFTdKCpm5Xg_MIaim-Np"
 )
 
-// 🎨 IMAGENS
-const BTN_OFF = "https://i.ibb.co/zhPMbkFm/f99d2df7-cef3-4a1b-a1a0-0965dad42218.png"
-const BTN_ON = "https://i.ibb.co/R4sLNZXd/Modo-de-Batalha.png"
+const params = new URLSearchParams(window.location.search)
+const MASTER_KEY = params.get("p")
 
-// ⚔️ TOGGLE
-async function toggleBatalha(){
-
-const { data, error } = await client
-.from("batalha")
-.select("*")
-.eq("id",1)
-.single()
-
-if(error || !data){
-alert("Erro ao acessar batalha")
-return
+if(!MASTER_KEY){
+  document.body.innerHTML = `
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      text-align:center;
+    ">
+      <span style="
+        font-family:'Cormorant SC', serif;
+        letter-spacing:0.1em;
+        text-transform:uppercase;
+        color:#e9d3a3;
+        font-weight:600;
+        font-size:clamp(40px, 16vw, 160px);
+        line-height:1;
+      ">Halflein</span>
+    </div>
+  `
+  throw new Error("Sem chave de mestre na URL")
 }
 
-const novoEstado = !data.ativa
+try{
+  window.history.replaceState({}, document.title, "new_master.html")
+}catch(e){
+  console.warn("Não foi possível limpar a URL (normal em prévias):", e.message)
+}
 
-await client
-.from("batalha")
-.update({ativa: novoEstado})
-.eq("id",1)
+let currentPersonagemId = null
+let toquesCache = []
+let personagensCache = []
 
-const btn = document.getElementById("battleBtn")
-const lista = document.getElementById("initiativeList")
+// ---------- MODAIS ----------
 
-if(novoEstado){
+function openModal(id){ document.getElementById("overlay-" + id).classList.add("open") }
+function closeModal(id){ document.getElementById("overlay-" + id).classList.remove("open") }
 
-btn.src = BTN_ON
-lista.style.display = "block"
-carregarIniciativas()
+// ---------- VALIDAÇÃO SILENCIOSA DA CHAVE ----------
 
-}else{
+async function validarChave(key){
+  const { data, error } = await client.rpc("master_check_key", { p_master_key: key })
+  if(error) return false
+  return data === true
+}
 
-btn.src = BTN_OFF
-lista.style.display = "none"
+async function mostrarDashboard(){
 
-await client.from("iniciativas").delete().neq("id",0)
+  document.getElementById("dashboard").style.display = "block"
+
+  const ok = await validarChave(MASTER_KEY)
+  if(!ok){
+    document.getElementById("keyWarning").innerText =
+      "⚠ A chave de mestre do link não confere com o banco. Edições vão falhar até corrigir."
+  }
+
+  await carregarToques()
+  await carregarPersonagens()
+  await atualizarEstadoBatalha()
 
 }
 
+// ---------- CARREGAR DADOS ----------
+
+async function carregarToques(){
+
+  const { data } = await client.from("toques").select("*")
+  toquesCache = data || []
+
+  const select = document.getElementById("selectToque")
+  select.innerHTML = toquesCache
+    .map(t => `<option value="${t.nome}">${t.nome}</option>`)
+    .join("")
+
 }
 
-// 👥 PERSONAGENS
 async function carregarPersonagens(){
 
-const { data } = await client
-.from("personagens")
-.select("*")
+  const { data } = await client.from("personagens").select("*")
+  personagensCache = data || []
 
-const grid = document.getElementById("personagens")
-grid.innerHTML = ""
+  const grid = document.getElementById("personagensGrid")
+  grid.innerHTML = ""
 
-data.forEach(p => {
+  personagensCache.forEach(p => {
 
-const el = document.createElement("div")
-el.className = "card"
+    const el = document.createElement("div")
+    el.className = "charCard"
 
-el.onclick = () => {
-window.location.href = `char.html?token=${p.token}&master=true`
+    el.innerHTML = `
+      <div class="portrait" style="background-image:url(${p.imagem});background-position:center ${p.imagem_posicao || "40%"}"></div>
+      <div class="info">
+        <div class="name">${p.nome}</div>
+        <div class="meta">${p.raca} • ${p.classe} • Nível ${p.nivel}</div>
+        <div class="toqueAtual">${p.toque_nome || "Sem Toque da Lua"}</div>
+        <div class="actions">
+          <button class="btn" onclick="abrirFicha('${p.token}')">Abrir ficha</button>
+          <button class="btn" onclick="abrirModalToque(${p.id}, '${(p.toque_nome || "").replace(/'/g, "&#39;")}')">Toque da Lua</button>
+        </div>
+      </div>
+    `
+
+    grid.appendChild(el)
+
+  })
+
 }
 
-el.innerHTML = `
-<img src="${p.imagem}" style="object-position:center ${p.imagem_posicao || "40%"}">
-<div class="info">
-<div class="name">${p.nome}</div>
-<div class="meta">${p.raca} • ${p.classe} • Nível ${p.nivel}</div>
-</div>
-`
+function abrirFicha(token){
+  sessionStorage.setItem("master_key", MASTER_KEY)
+  window.location.href = `inventario.html?p=${token}&master=true`
+}
 
-grid.appendChild(el)
+function abrirModalToque(id, toqueAtual){
+  currentPersonagemId = id
+  document.getElementById("selectToque").value = toqueAtual
+  openModal("modalToque")
+}
 
-})
+async function salvarToque(){
+
+  const key = MASTER_KEY
+  const toque = document.getElementById("selectToque").value
+
+  const { error } = await client.rpc("master_update_toque", {
+    p_master_key: key,
+    p_personagem_id: currentPersonagemId,
+    p_toque_nome: toque
+  })
+
+  if(error){
+    alert("Chave de mestre incorreta ou erro ao salvar.")
+    closeModal("modalToque")
+    return
+  }
+
+  closeModal("modalToque")
+  carregarPersonagens()
 
 }
 
-// 📊 INICIATIVAS
+// ---------- PALAVRAS PROIBIDAS ----------
+
+async function abrirModalPalavras(){
+  await carregarPalavras()
+  openModal("modalPalavras")
+}
+
+async function carregarPalavras(){
+
+  const { data, error } = await client.rpc("master_list_palavras_proibidas", {
+    p_master_key: MASTER_KEY
+  })
+
+  const div = document.getElementById("listaPalavras")
+
+  if(error){
+    div.innerHTML = "<p style='color:var(--wax);font-size:14px;'>Erro ao carregar: " + error.message + "</p>"
+    return
+  }
+
+  if(!data || data.length === 0){
+    div.innerHTML = "<p style='font-size:14px;color:var(--ink-soft);'>Nenhuma palavra cadastrada ainda.</p>"
+    return
+  }
+
+  div.innerHTML = data.map(p => `
+    <div class="palavraRow">
+      <span>${p.palavra}</span>
+      <button onclick="removerPalavra(${p.id})">Remover</button>
+    </div>
+  `).join("")
+
+}
+
+async function adicionarPalavra(){
+
+  const input = document.getElementById("inputNovaPalavra")
+  const palavra = input.value.trim()
+  if(!palavra) return
+
+  const { error } = await client.rpc("master_add_palavra_proibida", {
+    p_master_key: MASTER_KEY,
+    p_palavra: palavra
+  })
+
+  if(error){
+    alert("Não foi possível adicionar: " + error.message)
+    return
+  }
+
+  input.value = ""
+  carregarPalavras()
+
+}
+
+async function removerPalavra(id){
+
+  const { error } = await client.rpc("master_remove_palavra_proibida", {
+    p_master_key: MASTER_KEY,
+    p_id: id
+  })
+
+  if(error){
+    alert("Não foi possível remover: " + error.message)
+    return
+  }
+
+  carregarPalavras()
+
+}
+
+// ---------- MODO DE BATALHA ----------
+
+async function atualizarEstadoBatalha(){
+
+  const { data } = await client.from("batalha").select("*").eq("id", 1).single()
+  renderEstadoBatalha(data?.ativa === true)
+
+  if(data?.ativa === true){
+    carregarIniciativas()
+  }
+
+}
+
+function renderEstadoBatalha(ativa){
+
+  const statusEl = document.getElementById("battleStatusText")
+  const btnEl = document.getElementById("battleToggleBtn")
+  const listaEl = document.getElementById("iniciativaList")
+
+  if(ativa){
+    statusEl.innerText = "Em andamento"
+    statusEl.classList.add("on")
+    btnEl.innerText = "⚔ Encerrar batalha"
+    listaEl.style.display = "block"
+  }else{
+    statusEl.innerText = "Inativo"
+    statusEl.classList.remove("on")
+    btnEl.innerText = "⚔ Iniciar batalha"
+    listaEl.style.display = "none"
+    listaEl.innerHTML = ""
+  }
+
+}
+
+async function toggleBatalha(){
+
+  const key = MASTER_KEY
+
+  const { data } = await client.from("batalha").select("*").eq("id", 1).single()
+  const novoEstado = !(data?.ativa === true)
+
+  const { error } = await client.rpc("master_toggle_batalha", {
+    p_master_key: key,
+    p_ativa: novoEstado
+  })
+
+  if(error){
+    alert("Erro ao alterar o modo de batalha: " + error.message)
+    return
+  }
+
+  renderEstadoBatalha(novoEstado)
+
+  if(novoEstado){
+    carregarIniciativas()
+  }
+
+}
+
 async function carregarIniciativas(){
 
-const { data } = await client
-.from("iniciativas")
-.select("*")
-.order("valor", { ascending: false })
-.order("timestamp", { ascending: true })
+  const { data } = await client
+    .from("iniciativas")
+    .select("*")
+    .order("valor", { ascending: false })
+    .order("timestamp", { ascending: true })
 
-const lista = document.getElementById("initiativeList")
+  const listaEl = document.getElementById("iniciativaList")
 
-if(!data || data.length === 0){
-lista.innerHTML = "<p style='text-align:center;'>Aguardando iniciativas...</p>"
-return
-}
+  if(!data || data.length === 0){
+    listaEl.innerHTML = "<p style='text-align:center;margin:0;'>Aguardando iniciativas...</p>"
+    return
+  }
 
-// 🔥 buscar nomes manualmente
-const ids = data.map(i => i.personagem_id)
+  const ids = data.map(i => i.personagem_id)
 
-const { data: personagens } = await client
-.from("personagens")
-.select("id, nome")
-.in("id", ids)
+  const { data: personagens } = await client
+    .from("personagens")
+    .select("id, nome")
+    .in("id", ids)
 
-lista.innerHTML = ""
-
-data.forEach((item, i) => {
-
-const personagem = personagens.find(p => p.id === item.personagem_id)
-
-lista.innerHTML += `
-<div style="
-display:flex;
-justify-content:space-between;
-margin-bottom:8px;
-${i === 0 ? "color: gold; font-weight:bold;" : ""}
-">
-<span>${personagem ? personagem.nome : "???"}</span>
-<span>${item.valor}</span>
-</div>
-`
-
-})
+  listaEl.innerHTML = data.map((item, i) => {
+    const p = personagens.find(x => x.id === item.personagem_id)
+    return `
+      <div class="iniciativaRow ${i === 0 ? "top" : ""}">
+        <span>${p ? p.nome : "???"}</span>
+        <span>${item.valor}</span>
+      </div>
+    `
+  }).join("")
 
 }
 
-// 🚀 INIT
-window.onload = async () => {
+// ---------- INIT ----------
 
-carregarPersonagens()
+mostrarDashboard()
 
-const { data } = await client
-.from("batalha")
-.select("*")
-.eq("id",1)
-.single()
+// ---------- REALTIME ----------
 
-const btn = document.getElementById("battleBtn")
-btn.src = data?.ativa ? BTN_ON : BTN_OFF
-
-}
-
-// 🔄 REALTIME
 client
-.channel('iniciativas-channel')
-.on(
-'postgres_changes',
-{
-event: '*',
-schema: 'public',
-table: 'iniciativas'
-},
-() => {
-carregarIniciativas()
-}
-)
-.subscribe()
+  .channel('iniciativas-master-channel')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'iniciativas' }, () => {
+    if(document.getElementById("dashboard").style.display === "block"){
+      carregarIniciativas()
+    }
+  })
+  .subscribe()
+
+client
+  .channel('batalha-master-channel')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'batalha' }, (payload) => {
+    if(document.getElementById("dashboard").style.display === "block"){
+      renderEstadoBatalha(payload.new.ativa === true)
+      if(payload.new.ativa === true){ carregarIniciativas() }
+    }
+  })
+  .subscribe()
 
 </script>
 
 </body>
-
 </html>
