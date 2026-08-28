@@ -239,7 +239,7 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
   color:var(--ink-soft);
   margin-bottom:5px;
 }
-.modal select{
+.modal select, .modal textarea{
   width:100%;
   font-family:'EB Garamond', serif;
   font-size:16px;
@@ -250,6 +250,7 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
   padding:8px 2px;
   margin-bottom:18px;
   outline:none;
+  resize:vertical;
 }
 .modalButtons{
   display:flex;
@@ -294,7 +295,7 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
     <h1>Painel do Mestre</h1>
   </div>
 
-  <div class="lockError" id="keyWarning" style="text-align:center;"></div>
+  <div class="lockError" id="keyWarning" style="text-align:center;display:none;"></div>
 
   <div class="battlePanel">
     <div class="row">
@@ -310,7 +311,8 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
 
   <div class="grid" id="personagensGrid"></div>
 
-  <div style="text-align:center;margin-top:32px;">
+  <div style="text-align:center;margin-top:32px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-ghost" onclick="abrirModalToquesDesc()">Toques da Lua</button>
     <button class="btn btn-ghost" onclick="abrirModalPalavras()">Palavras proibidas</button>
   </div>
 
@@ -325,6 +327,21 @@ h1,h2,h3{ font-family:'Cinzel', serif; margin:0; }
     <div class="modalButtons">
       <button class="btn" onclick="closeModal('modalToque')">Cancelar</button>
       <button class="btn btn-brass" onclick="salvarToque()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: DESCRIÇÃO DOS TOQUES DA LUA ===================== -->
+<div class="overlay" id="overlay-modalToquesDesc">
+  <div class="modal" style="width:340px;">
+    <h3>Toques da Lua</h3>
+    <label for="selectToqueDesc">Escolha o toque</label>
+    <select id="selectToqueDesc" onchange="carregarDescricaoToque()"></select>
+    <label for="inputToqueDescricao">Descrição</label>
+    <textarea id="inputToqueDescricao" style="min-height:160px;"></textarea>
+    <div class="modalButtons">
+      <button class="btn" onclick="closeModal('modalToquesDesc')">Fechar</button>
+      <button class="btn btn-brass" onclick="salvarDescricaoToque()">Salvar</button>
     </div>
   </div>
 </div>
@@ -414,8 +431,9 @@ async function mostrarDashboard(){
 
   const ok = await validarChave(MASTER_KEY)
   if(!ok){
-    document.getElementById("keyWarning").innerText =
-      "⚠ A chave de mestre do link não confere com o banco. Edições vão falhar até corrigir."
+    const warningEl = document.getElementById("keyWarning")
+    warningEl.innerText = "⚠ A chave de mestre do link não confere com o banco. Edições vão falhar até corrigir."
+    warningEl.style.display = "block"
   }
 
   await carregarToques()
@@ -441,7 +459,7 @@ async function carregarToques(){
 async function carregarPersonagens(){
 
   const { data } = await client.from("personagens").select("*")
-  personagensCache = data || []
+  personagensCache = (data || []).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
 
   const grid = document.getElementById("personagensGrid")
   grid.innerHTML = ""
@@ -500,6 +518,51 @@ async function salvarToque(){
 
   closeModal("modalToque")
   carregarPersonagens()
+
+}
+
+// ---------- DESCRIÇÃO DOS TOQUES DA LUA ----------
+
+function abrirModalToquesDesc(){
+
+  const select = document.getElementById("selectToqueDesc")
+  select.innerHTML = toquesCache
+    .map(t => `<option value="${t.nome}">${t.nome}</option>`)
+    .join("")
+
+  carregarDescricaoToque()
+  openModal("modalToquesDesc")
+
+}
+
+function carregarDescricaoToque(){
+
+  const nome = document.getElementById("selectToqueDesc").value
+  const t = toquesCache.find(x => x.nome === nome)
+  document.getElementById("inputToqueDescricao").value = t?.descricao || ""
+
+}
+
+async function salvarDescricaoToque(){
+
+  const nome = document.getElementById("selectToqueDesc").value
+  const descricao = document.getElementById("inputToqueDescricao").value
+
+  const { error } = await client.rpc("master_update_toque_descricao", {
+    p_master_key: MASTER_KEY,
+    p_toque_nome: nome,
+    p_descricao: descricao
+  })
+
+  if(error){
+    alert("Não foi possível salvar: " + error.message)
+    return
+  }
+
+  const t = toquesCache.find(x => x.nome === nome)
+  if(t) t.descricao = descricao
+
+  closeModal("modalToquesDesc")
 
 }
 
