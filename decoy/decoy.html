@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>???</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html, body{
+  height:100%;
+  overflow:hidden;
+  background:#000;
+}
+
+.bg{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  background-image:url('sumdai.png');
+  background-size:cover;
+  background-position:center;
+}
+
+.frase{
+  position:absolute;
+  top:60%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:90%;
+  text-align:center;
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  color:#e9d3a3;
+  font-size:clamp(20px, 7vw, 34px);
+  letter-spacing:0.04em;
+  text-shadow:
+    0 0 12px rgba(120, 90, 220, 0.9),
+    0 0 30px rgba(80, 50, 180, 0.7),
+    0 2px 4px rgba(0,0,0,0.8);
+  pointer-events:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="frase">🍦 Sundae venceu</div>
+
+</body>
+</html>
